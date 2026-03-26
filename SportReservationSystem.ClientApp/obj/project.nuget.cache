@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "dgSpecHash": "Wvzd4WGMkWs=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Admin\\Desktop\\SportReservationSystem\\SportReservationSystem\\SportReservationSystem.ClientApp\\SportReservationSystem.ClientApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Admin\\.nuget\\packages\\metromodernui\\1.4.0\\metromodernui.1.4.0.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "message": "Le package 'MetroModernUI 1.4.0' a été restauré en utilisant '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' au lieu du framework cible du projet 'net8.0-windows7.0'. Ce package n'est peut-être pas totalement compatible avec votre projet.",
+      "projectPath": "C:\\Users\\Admin\\Desktop\\SportReservationSystem\\SportReservationSystem\\SportReservationSystem.ClientApp\\SportReservationSystem.ClientApp.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\Admin\\Desktop\\SportReservationSystem\\SportReservationSystem\\SportReservationSystem.ClientApp\\SportReservationSystem.ClientApp.csproj",
+      "libraryId": "MetroModernUI",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    }
+  ]
+}

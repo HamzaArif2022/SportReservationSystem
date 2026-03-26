@@ -1,0 +1,152 @@
+{
+  "version": 3,
+  "targets": {
+    "net8.0-windows7.0": {
+      "MetroModernUI/1.4.0": {
+        "type": "package",
+        "compile": {
+          "lib/net/MetroFramework.Design.dll": {},
+          "lib/net/MetroFramework.Fonts.dll": {},
+          "lib/net/MetroFramework.dll": {}
+        },
+        "runtime": {
+          "lib/net/MetroFramework.Design.dll": {},
+          "lib/net/MetroFramework.Fonts.dll": {},
+          "lib/net/MetroFramework.dll": {}
+        }
+      },
+      "SportReservationSystem.Shared/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/SportReservationSystem.Shared.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SportReservationSystem.Shared.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "MetroModernUI/1.4.0": {
+      "sha512": "p2F3w8bF1tb0tpkDceEVO65UYMKnJxdQyNxVyl/OjrFZHighicLYZDppKkiqmvBZ10XUi2mqHiIJUzXBP3GElQ==",
+      "type": "package",
+      "path": "metromodernui/1.4.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net/MetroFramework.Design.dll",
+        "lib/net/MetroFramework.Fonts.dll",
+        "lib/net/MetroFramework.dll",
+        "metromodernui.1.4.0.nupkg.sha512",
+        "metromodernui.nuspec"
+      ]
+    },
+    "SportReservationSystem.Shared/1.0.0": {
+      "type": "project",
+      "path": "../SportReservationSystem.Shared/SportReservationSystem.Shared.csproj",
+      "msbuildProject": "../SportReservationSystem.Shared/SportReservationSystem.Shared.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net8.0-windows7.0": [
+      "MetroModernUI >= 1.4.0",
+      "SportReservationSystem.Shared >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\Admin\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\Admin\\Desktop\\SportReservationSystem\\SportReservationSystem\\SportReservationSystem.GestionnaireApp\\SportReservationSystem.GestionnaireApp.csproj",
+      "projectName": "SportReservationSystem.GestionnaireApp",
+      "projectPath": "C:\\Users\\Admin\\Desktop\\SportReservationSystem\\SportReservationSystem\\SportReservationSystem.GestionnaireApp\\SportReservationSystem.GestionnaireApp.csproj",
+      "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Admin\\Desktop\\SportReservationSystem\\SportReservationSystem\\SportReservationSystem.GestionnaireApp\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net8.0-windows"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
+          "projectReferences": {
+            "C:\\Users\\Admin\\Desktop\\SportReservationSystem\\SportReservationSystem\\SportReservationSystem.Shared\\SportReservationSystem.Shared.csproj": {
+              "projectPath": "C:\\Users\\Admin\\Desktop\\SportReservationSystem\\SportReservationSystem\\SportReservationSystem.Shared\\SportReservationSystem.Shared.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
+    },
+    "frameworks": {
+      "net8.0-windows7.0": {
+        "targetAlias": "net8.0-windows",
+        "dependencies": {
+          "MetroModernUI": {
+            "target": "Package",
+            "version": "[1.4.0, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          },
+          "Microsoft.WindowsDesktop.App.WindowsForms": {
+            "privateAssets": "none"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  },
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Le package 'MetroModernUI 1.4.0' a été restauré en utilisant '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' au lieu du framework cible du projet 'net8.0-windows7.0'. Ce package n'est peut-être pas totalement compatible avec votre projet.",
+      "libraryId": "MetroModernUI",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    }
+  ]
+}
