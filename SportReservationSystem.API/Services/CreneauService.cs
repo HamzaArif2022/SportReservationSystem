@@ -3,39 +3,59 @@ using SportReservationSystem.API.Data;
 using SportReservationSystem.API.Services.Interfaces;
 using SportReservationSystem.Shared.Models;
 
-namespace SportReservationSystem.API.Services;
-
-public class CreneauService : ICreneauService
+namespace SportReservationSystem.API.Services
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public CreneauService(ApplicationDbContext dbContext)
+    public class CreneauService : ICreneauService
     {
-        _dbContext = dbContext;
-    }
+        private readonly ApplicationDbContext _context;
 
-    public Task<List<Creneau>> GetByTerrainAsync(int terrainId)
-    {
-        return _dbContext.Creneaux
-            .AsNoTracking()
-            .Where(c => c.TerrainId == terrainId)
-            .OrderBy(c => c.StartTime)
-            .ToListAsync();
-    }
-
-    public Task<List<Creneau>> SearchAvailableAsync(DateTime? date)
-    {
-        var query = _dbContext.Creneaux
-            .AsNoTracking()
-            .Include(c => c.Terrain)
-            .Where(c => c.IsAvailable);
-
-        if (date.HasValue)
+        public CreneauService(ApplicationDbContext context)
         {
-            var day = date.Value.Date;
-            query = query.Where(c => c.StartTime.Date == day);
+            _context = context;
         }
 
-        return query.OrderBy(c => c.StartTime).ToListAsync();
+        public async Task<List<Creneau>> GetDisponiblesAsync(int terrainId, DateTime date)
+        {
+            return await _context.Creneaux
+                .Where(c => c.TerrainId == terrainId 
+                            && c.Date == date.Date 
+                            && c.EstDisponible)
+                .Include(c => c.Terrain)
+                .OrderBy(c => c.HeureDebut)
+                .ToListAsync();
+        }
+
+        public async Task<Creneau?> GetByIdAsync(int id)
+        {
+            return await _context.Creneaux
+                .Include(c => c.Terrain)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task<Creneau> CreateAsync(Creneau creneau)
+        {
+            _context.Creneaux.Add(creneau);
+            await _context.SaveChangesAsync();
+            return creneau;
+        }
+
+        public async Task<List<Creneau>> GetAllAsync()
+        {
+            return await _context.Creneaux
+                .Include(c => c.Terrain)
+                .OrderBy(c => c.Date)
+                .ThenBy(c => c.HeureDebut)
+                .ToListAsync();
+        }
+
+        public async Task<bool> UpdateDisponibiliteAsync(int id, bool estDisponible)
+        {
+            var creneau = await _context.Creneaux.FindAsync(id);
+            if (creneau == null) return false;
+            
+            creneau.EstDisponible = estDisponible;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

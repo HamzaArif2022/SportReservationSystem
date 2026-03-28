@@ -1,13 +1,17 @@
 using SportReservationSystem.Shared.DTOs;
-using SportReservationSystem.Shared.Models;
 
-namespace SportReservationSystem.API.Services.Interfaces;
-
-public interface IReservationService
+namespace SportReservationSystem.API.Services.Interfaces
 {
-    Task<List<Reservation>> GetAllAsync();
-    Task<List<Reservation>> GetByClientAsync(int clientId);
-    Task<Reservation?> CreateAsync(ReservationDto dto);
-    Task<bool> CancelAsync(int reservationId);
-    Task<bool> ValidateAsync(int reservationId);
+    public interface IReservationService
+    {
+        Task<List<ReservationDto>> GetAllAsync();
+        Task<List<ReservationDto>> GetByClientIdAsync(int clientId);
+        Task<List<ReservationDto>> GetEnAttenteAsync();
+        Task<ReservationDto?> CreateAsync(CreateReservationDto dto, int clientId);
+        Task<bool> CancelAsync(int reservationId, int clientId);
+        Task<ReservationDto?> ValidateAsync(int reservationId);
+        Task<ReservationDto?> RefuseAsync(int reservationId, string motif);
+        Task<ReservationDto?> GetByIdAsync(int id);
+        Task<List<ReservationDto>> GetPlanningAsync(DateTime date);
+    }
 }

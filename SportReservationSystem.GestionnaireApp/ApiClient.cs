@@ -37,4 +37,11 @@ public class ApiClient
         response.EnsureSuccessStatusCode();
         return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync(), _jsonOptions);
     }
+    
+    public async Task<byte[]> GetFileAsync(string endpoint)
+    {
+        var response = await _httpClient.GetAsync(endpoint);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsByteArrayAsync();
+    }
 }
