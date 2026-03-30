@@ -1,13 +1,20 @@
-namespace SportReservationSystem.Shared.Models;
+using System;
+using System.Collections.Generic;
 
-public class Creneau
+namespace SportReservationSystem.Shared.Models
 {
-    public int Id { get; set; }
-    public int TerrainId { get; set; }
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
-    public bool IsAvailable { get; set; } = true;
-
-    public Terrain? Terrain { get; set; }
-    public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+    public class Creneau
+    {
+        public int Id { get; set; }
+        public int TerrainId { get; set; }
+        public DateTime Date { get; set; }
+        public TimeSpan HeureDebut { get; set; }  // ← Notez "HeureDebut" pas "StartTime"
+        public TimeSpan HeureFin { get; set; }    // ← Notez "HeureFin" pas "EndTime"
+        public bool EstDisponible { get; set; } = true;  // ← Notez "EstDisponible" pas "IsAvailable"
+        
+        public Terrain Terrain { get; set; } = null!;
+        public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+        
+        public string DisplayText => $"{Date:dd/MM/yyyy} - {HeureDebut:hh\\:mm} à {HeureFin:hh\\:mm}";
+    }
 }

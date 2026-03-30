@@ -1,4 +1,7 @@
+using System;
 using System.Text.Json;
+using System.Windows.Forms;
+using MetroFramework.Controls;
 using MetroFramework.Forms;
 using SportReservationSystem.Shared.DTOs;
 
@@ -6,7 +9,8 @@ namespace SportReservationSystem.ClientApp;
 
 public partial class FormLogin : MetroForm
 {
-    private readonly ApiClient _apiClient = new("http://localhost:5161/");
+
+    private readonly ApiClient _apiClient = new("https://localhost:7288");
 
     public FormLogin()
     {
@@ -30,7 +34,9 @@ public partial class FormLogin : MetroForm
                 return;
             }
 
-            var role = result.GetProperty("role").GetString() ?? string.Empty;
+            var user = result.GetProperty("user");
+
+            var role = user.GetProperty("role").GetString() ?? string.Empty;
             if (!string.Equals(role, "Client", StringComparison.OrdinalIgnoreCase))
             {
                 MessageBox.Show("Ce compte n'est pas un client.");
@@ -38,9 +44,9 @@ public partial class FormLogin : MetroForm
             }
 
             var token = result.GetProperty("token").GetString() ?? string.Empty;
-            var clientId = result.GetProperty("clientId").GetInt32();
-            _apiClient.SetToken(token);
+            var clientId = user.GetProperty("id").GetInt32();
 
+            _apiClient.SetToken(token);
             Hide();
             var main = new FormMainClient(_apiClient, clientId);
             main.FormClosed += (_, _) => Close();
@@ -51,4 +57,6 @@ public partial class FormLogin : MetroForm
             MessageBox.Show($"Echec login: {ex.Message}");
         }
     }
+
+
 }

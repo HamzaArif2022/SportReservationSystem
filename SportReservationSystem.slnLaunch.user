@@ -1,0 +1,16 @@
+[
+  {
+    "Name": "Nouveau profil",
+    "Projects": [
+      {
+        "Path": "SportReservationSystem.API\\SportReservationSystem.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "SportReservationSystem.ClientApp\\SportReservationSystem.ClientApp.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

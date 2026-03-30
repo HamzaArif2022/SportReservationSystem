@@ -1,5 +1,6 @@
 using MetroFramework.Controls;
 using MetroFramework.Forms;
+using SportReservationSystem.GestionnaireApp.Forms;
 using SportReservationSystem.Shared.Models;
 
 namespace SportReservationSystem.GestionnaireApp;
@@ -25,6 +26,25 @@ public partial class FormMainGestionnaire : MetroForm
         var data = await _apiClient.GetAsync<List<Reservation>>("api/reservations");
         _gridDashboard.DataSource = data;
         _gridValidations.DataSource = data?.ToList();
+    }
+    // Dans FormMainGestionnaire.cs, ajoutez ces méthodes :
+
+    private void btnValidation_Click(object sender, EventArgs e)
+    {
+        var form = new FormValidationReservations(_apiClient);
+        form.ShowDialog();
+    }
+
+    private void btnPlanning_Click(object sender, EventArgs e)
+    {
+        var form = new FormPlanning(_apiClient);
+        form.ShowDialog();
+    }
+
+    private void btnStatistiques_Click(object sender, EventArgs e)
+    {
+        var form = new FormStatistiques(_apiClient);
+        form.ShowDialog();
     }
 
     private async Task ValidateSelectedAsync()

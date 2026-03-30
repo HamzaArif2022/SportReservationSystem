@@ -2,33 +2,41 @@ using Microsoft.AspNetCore.Mvc;
 using SportReservationSystem.API.Services.Interfaces;
 using SportReservationSystem.Shared.DTOs;
 
-namespace SportReservationSystem.API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class AuthController : ControllerBase
+namespace SportReservationSystem.API.Controllers
 {
-    private readonly IAuthService _authService;
-
-    public AuthController(IAuthService authService)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuthController : ControllerBase
     {
-        _authService = authService;
-    }
+        private readonly IAuthService _authService;
 
-    [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginDto dto)
-    {
-        var result = await _authService.LoginAsync(dto);
-        if (result is null)
+        public AuthController(IAuthService authService)
         {
-            return Unauthorized("Invalid credentials.");
+            _authService = authService;
         }
 
-        return Ok(new
+        // POST: api/auth/register
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
-            token = result.Value.Token,
-            role = result.Value.Role,
-            clientId = result.Value.ClientId
-        });
+            var result = await _authService.RegisterAsync(registerDto);
+            
+            if (!result.Success)
+                return BadRequest(new { message = result.Message });
+            
+            return Ok(result);
+        }
+
+        // POST: api/auth/login
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        {
+            var result = await _authService.LoginAsync(loginDto);
+            
+            if (!result.Success)
+                return Unauthorized(new { message = result.Message });
+            
+            return Ok(result);
+        }
     }
 }

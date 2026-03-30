@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SportReservationSystem.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1b722131a2d56db8dc333605500c900b8afcfb4b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6d00f542762d0ff48755a7dbe06b5f03a1b24138")]
 [assembly: System.Reflection.AssemblyProductAttribute("SportReservationSystem.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SportReservationSystem.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

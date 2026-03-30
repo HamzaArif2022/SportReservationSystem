@@ -7,5 +7,14 @@
     <Compile Update="FormMainGestionnaire.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\FormPlanning.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormStatistiques.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormValidationReservations.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

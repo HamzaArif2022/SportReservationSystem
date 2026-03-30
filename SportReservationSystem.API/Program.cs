@@ -7,6 +7,7 @@ using SportReservationSystem.API.Services;
 using SportReservationSystem.API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+
 var jwtSecret = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key missing.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -23,15 +24,37 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+            ClockSkew = TimeSpan.Zero
         };
     });
 
 builder.Services.AddAuthorization();
+
+// Services existants
+// Ajouter après les autres services
+builder.Services.AddScoped<IPaiementService, PaiementService>();
+builder.Services.AddScoped<IStatistiqueService, StatistiqueService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITerrainService, TerrainService>();
 builder.Services.AddScoped<ICreneauService, CreneauService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
+
+// Commenter temporairement les services manquants
+// builder.Services.AddScoped<IPaiementService, PaiementService>();
+// builder.Services.AddScoped<IStatistiqueService, StatistiqueService>();
+// builder.Services.AddScoped<INotificationService, NotificationService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -45,6 +68,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

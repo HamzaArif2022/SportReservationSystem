@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 using MetroFramework.Controls;
 using MetroFramework.Forms;
+using SportReservationSystem.ClientApp.Forms;
 using SportReservationSystem.Shared.DTOs;
 using SportReservationSystem.Shared.Models;
 
@@ -15,6 +19,7 @@ public partial class FormMainClient : MetroForm
         _apiClient = apiClient;
         _clientId = clientId;
         InitializeComponent();
+        
         _btnSearch.Click += async (_, _) => await LoadCreneauxAsync();
         _btnBook.Click += async (_, _) => await BookSelectedAsync();
         _btnRefreshReservations.Click += async (_, _) => await LoadReservationsAsync();
@@ -26,22 +31,43 @@ public partial class FormMainClient : MetroForm
             await LoadCreneauxAsync();
             await LoadReservationsAsync();
         };
+        
+        // ============================================
+        // BOUTONS DES FORMULAIRES - COMMENTÉS TEMPORAIREMENT
+        // Décommentez après avoir ajouté les boutons dans le Designer
+        // ============================================
+        
+        // _btnTerrains.Click += (_, _) => new FormTerrains(_apiClient).ShowDialog();
+        // _btnRecherche.Click += async (_, _) =>
+        // {
+        //     var form = new FormRechercheCreneaux(_apiClient);
+        //     if (form.ShowDialog() == DialogResult.OK && form.SelectedCreneau != null)
+        //     {
+        //         var reservationForm = new FormReservation(_apiClient, _clientId, form.SelectedCreneau);
+        //         reservationForm.ShowDialog();
+        //     }
+        // };
+        // _btnHistorique.Click += (_, _) => new FormHistorique(_apiClient, _clientId).ShowDialog();
+        // _btnProfil.Click += (_, _) => new FormProfil(_apiClient, _clientId).ShowDialog();
     }
 
     private async Task LoadTerrainsAsync()
     {
-        _gridTerrains.DataSource = await _apiClient.GetAsync<List<Terrain>>("api/terrains");
+        var terrains = await _apiClient.GetAsync<List<Terrain>>("api/terrains");
+        _gridTerrains.DataSource = terrains;
     }
 
     private async Task LoadCreneauxAsync()
     {
         var date = _dateFilter.Value.ToString("yyyy-MM-dd");
-        _gridCreneaux.DataSource = await _apiClient.GetAsync<List<Creneau>>($"api/creneaux/available?date={date}");
+        var creneaux = await _apiClient.GetAsync<List<Creneau>>($"api/creneaux/available?date={date}");
+        _gridCreneaux.DataSource = creneaux;
     }
 
     private async Task LoadReservationsAsync()
     {
-        _gridReservations.DataSource = await _apiClient.GetAsync<List<Reservation>>($"api/reservations/client/{_clientId}");
+        var reservations = await _apiClient.GetAsync<List<ReservationDto>>($"api/reservations/client/{_clientId}");
+        _gridReservations.DataSource = reservations;
     }
 
     private async Task BookSelectedAsync()
@@ -52,11 +78,11 @@ public partial class FormMainClient : MetroForm
             return;
         }
 
-        await _apiClient.PostAsync<Reservation>("api/reservations", new ReservationDto
+        await _apiClient.PostAsync<ReservationDto>("api/reservations", new
         {
             ClientId = _clientId,
             CreneauId = creneau.Id,
-            Status = "Confirmée"
+            Statut = "Confirmée"
         });
         await LoadCreneauxAsync();
         await LoadReservationsAsync();
@@ -64,7 +90,7 @@ public partial class FormMainClient : MetroForm
 
     private async Task CancelSelectedAsync()
     {
-        if (_gridReservations.CurrentRow?.DataBoundItem is not Reservation reservation)
+        if (_gridReservations.CurrentRow?.DataBoundItem is not ReservationDto reservation)
         {
             MessageBox.Show("Selectionnez une reservation.");
             return;

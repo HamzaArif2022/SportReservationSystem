@@ -23,9 +23,15 @@ public class ApiClient
         return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync(), _jsonOptions);
     }
 
-    public async Task<bool> PutAsync(string endpoint)
+    public async Task<bool> PutAsync(string endpoint, object? payload = null)
     {
-        var response = await _httpClient.PutAsync(endpoint, null);
+        HttpContent? content = null;
+        if (payload != null)
+        {
+            var json = JsonSerializer.Serialize(payload);
+            content = new StringContent(json, Encoding.UTF8, "application/json");
+        }
+        var response = await _httpClient.PutAsync(endpoint, content);
         return response.IsSuccessStatusCode;
     }
 
@@ -36,5 +42,12 @@ public class ApiClient
         var response = await _httpClient.PostAsync(endpoint, content);
         response.EnsureSuccessStatusCode();
         return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync(), _jsonOptions);
+    }
+    
+    public async Task<byte[]> GetFileAsync(string endpoint)
+    {
+        var response = await _httpClient.GetAsync(endpoint);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsByteArrayAsync();
     }
 }

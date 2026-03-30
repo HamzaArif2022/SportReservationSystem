@@ -7,5 +7,23 @@
     <Compile Update="FormMainClient.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\FormHistorique.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormPaiement.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormProfil.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormRechercheCreneaux.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormReservation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormTerrains.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 </Project>
