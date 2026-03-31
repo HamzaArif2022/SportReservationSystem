@@ -1,4 +1,6 @@
+using System;
 using System.Text.Json;
+using System.Windows.Forms;
 using MetroFramework.Forms;
 using SportReservationSystem.Shared.DTOs;
 
@@ -30,10 +32,22 @@ public partial class FormLogin : MetroForm
                 return;
             }
 
-            var role = result.GetProperty("role").GetString() ?? string.Empty;
+            // Vérifier si la réponse contient un succès
+            if (result.TryGetProperty("success", out var successProp) && !successProp.GetBoolean())
+            {
+                string message = result.GetProperty("message").GetString() ?? "Erreur de connexion";
+                MessageBox.Show(message);
+                return;
+            }
+
+            // Extraire l'objet user
+            var user = result.GetProperty("user");
+            var role = user.GetProperty("role").GetString() ?? string.Empty;
+            
+            // Vérifier le rôle - accepte "Gestionnaire" (et "Admin" si besoin)
             if (!string.Equals(role, "Gestionnaire", StringComparison.OrdinalIgnoreCase))
             {
-                MessageBox.Show("Ce compte n'est pas un gestionnaire.");
+                MessageBox.Show("Ce compte n'est pas un gestionnaire. Veuillez utiliser l'application client.");
                 return;
             }
 

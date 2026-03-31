@@ -9,6 +9,7 @@ namespace SportReservationSystem.ClientApp.Forms
         private readonly ApiClient _apiClient;
         private List<Terrain> _terrains;
         private List<Creneau> _creneaux;
+        public Creneau? SelectedCreneau { get; private set; }
 
         public FormRechercheCreneaux(ApiClient apiClient)
         {

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SportReservationSystem.API.Services.Interfaces;
 using SportReservationSystem.Shared.DTOs;
@@ -9,6 +11,27 @@ namespace SportReservationSystem.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        
+        // GET: api/auth/user/{id}
+        [HttpGet("user/{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            
+            // Un client ne peut voir que son propre profil
+            if (currentUserId != id && !User.IsInRole("Gestionnaire"))
+            {
+                return Forbid();
+            }
+            
+            var result = await _authService.GetUserByIdAsync(id);
+            
+            if (!result.Success)
+                return NotFound(new { message = result.Message });
+            
+            return Ok(result);
+        }
 
         public AuthController(IAuthService authService)
         {

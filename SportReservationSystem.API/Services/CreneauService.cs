@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SportReservationSystem.API.Data;
 using SportReservationSystem.API.Services.Interfaces;
+using SportReservationSystem.Shared.DTOs;
 using SportReservationSystem.Shared.Models;
 
 namespace SportReservationSystem.API.Services
@@ -14,7 +15,7 @@ namespace SportReservationSystem.API.Services
             _context = context;
         }
 
-        public async Task<List<Creneau>> GetDisponiblesAsync(int terrainId, DateTime date)
+        public async Task<List<CreneauDto>> GetDisponiblesAsync(int terrainId, DateTime date)
         {
             return await _context.Creneaux
                 .Where(c => c.TerrainId == terrainId 
@@ -22,14 +23,35 @@ namespace SportReservationSystem.API.Services
                             && c.EstDisponible)
                 .Include(c => c.Terrain)
                 .OrderBy(c => c.HeureDebut)
+                .Select(c => new CreneauDto
+                {
+                    Id = c.Id,
+                    TerrainId = c.TerrainId,
+                    TerrainNom = c.Terrain.Nom,
+                    Date = c.Date,
+                    HeureDebut = c.HeureDebut,
+                    HeureFin = c.HeureFin,
+                    EstDisponible = c.EstDisponible
+                })
                 .ToListAsync();
         }
 
-        public async Task<Creneau?> GetByIdAsync(int id)
+        public async Task<CreneauDto?> GetByIdAsync(int id)
         {
             return await _context.Creneaux
                 .Include(c => c.Terrain)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .Where(c => c.Id == id)
+                .Select(c => new CreneauDto
+                {
+                    Id = c.Id,
+                    TerrainId = c.TerrainId,
+                    TerrainNom = c.Terrain.Nom,
+                    Date = c.Date,
+                    HeureDebut = c.HeureDebut,
+                    HeureFin = c.HeureFin,
+                    EstDisponible = c.EstDisponible
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<Creneau> CreateAsync(Creneau creneau)
@@ -39,12 +61,22 @@ namespace SportReservationSystem.API.Services
             return creneau;
         }
 
-        public async Task<List<Creneau>> GetAllAsync()
+        public async Task<List<CreneauDto>> GetAllAsync()
         {
             return await _context.Creneaux
                 .Include(c => c.Terrain)
                 .OrderBy(c => c.Date)
                 .ThenBy(c => c.HeureDebut)
+                .Select(c => new CreneauDto
+                {
+                    Id = c.Id,
+                    TerrainId = c.TerrainId,
+                    TerrainNom = c.Terrain.Nom,
+                    Date = c.Date,
+                    HeureDebut = c.HeureDebut,
+                    HeureFin = c.HeureFin,
+                    EstDisponible = c.EstDisponible
+                })
                 .ToListAsync();
         }
 

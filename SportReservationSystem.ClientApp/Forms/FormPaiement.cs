@@ -56,7 +56,7 @@ namespace SportReservationSystem.ClientApp.Forms
         private void InitializeComponent()
         {
             this.lblReservation = new MetroFramework.Controls.MetroLabel();
-            this.txtReservationId = new MetroFramework.Controls.MetroTextBox();
+                this.txtReservationId = new MetroFramework.Controls.MetroTextBox();
             this.lblMontant = new MetroFramework.Controls.MetroLabel();
             this.txtMontant = new MetroFramework.Controls.MetroTextBox();
             this.lblModePaiement = new MetroFramework.Controls.MetroLabel();

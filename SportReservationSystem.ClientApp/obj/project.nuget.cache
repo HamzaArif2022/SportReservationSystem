@@ -1,19 +1,24 @@
 {
   "version": 2,
-  "dgSpecHash": "Wvzd4WGMkWs=",
+  "dgSpecHash": "kSIneJLBpaQ=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\Desktop\\SportReservationSystem\\SportReservationSystem\\SportReservationSystem.ClientApp\\SportReservationSystem.ClientApp.csproj",
+  "projectFilePath": "C:\\Users\\pc\\Documents\\hightech\\SportReservationSystem\\SportReservationSystem.ClientApp\\SportReservationSystem.ClientApp.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Admin\\.nuget\\packages\\metromodernui\\1.4.0\\metromodernui.1.4.0.nupkg.sha512"
+    "C:\\Users\\pc\\.nuget\\packages\\materialskin.2\\2.3.1\\materialskin.2.2.3.1.nupkg.sha512",
+    "C:\\Users\\pc\\.nuget\\packages\\metromodernui\\1.4.0\\metromodernui.1.4.0.nupkg.sha512",
+    "C:\\Users\\pc\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.22\\microsoft.netcore.app.ref.8.0.22.nupkg.sha512",
+    "C:\\Users\\pc\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.22\\microsoft.windowsdesktop.app.ref.8.0.22.nupkg.sha512",
+    "C:\\Users\\pc\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.22\\microsoft.aspnetcore.app.ref.8.0.22.nupkg.sha512",
+    "C:\\Users\\pc\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.22\\microsoft.netcore.app.host.win-x64.8.0.22.nupkg.sha512"
   ],
   "logs": [
     {
       "code": "NU1701",
       "level": "Warning",
       "message": "Le package 'MetroModernUI 1.4.0' a été restauré en utilisant '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' au lieu du framework cible du projet 'net8.0-windows7.0'. Ce package n'est peut-être pas totalement compatible avec votre projet.",
-      "projectPath": "C:\\Users\\Admin\\Desktop\\SportReservationSystem\\SportReservationSystem\\SportReservationSystem.ClientApp\\SportReservationSystem.ClientApp.csproj",
+      "projectPath": "C:\\Users\\pc\\Documents\\hightech\\SportReservationSystem\\SportReservationSystem.ClientApp\\SportReservationSystem.ClientApp.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Users\\Admin\\Desktop\\SportReservationSystem\\SportReservationSystem\\SportReservationSystem.ClientApp\\SportReservationSystem.ClientApp.csproj",
+      "filePath": "C:\\Users\\pc\\Documents\\hightech\\SportReservationSystem\\SportReservationSystem.ClientApp\\SportReservationSystem.ClientApp.csproj",
       "libraryId": "MetroModernUI",
       "targetGraphs": [
         "net8.0-windows7.0"

@@ -118,62 +118,70 @@ namespace SportReservationSystem.API.Services
             };
         }
 
-        public async Task<ChiffreAffairesDto> GetChiffreAffairesAsync(DateTime? debut = null, DateTime? fin = null)
-        {
-            debut ??= DateTime.Today.AddMonths(-1);
-            fin ??= DateTime.Today;
-            
-            var paiements = await _context.Paiements
-                .Where(p => p.Statut == "Effectué" && p.DatePaiement >= debut && p.DatePaiement <= fin)
-                .ToListAsync();
-            
-            var total = paiements.Sum(p => p.Montant);
-            
-            var duree = fin.Value - debut.Value;
-            var periodePrecedenteDebut = debut.Value.Subtract(duree);
-            var periodePrecedenteFin = debut.Value.AddDays(-1);
-            
-            var totalPrecedent = await _context.Paiements
-                .Where(p => p.Statut == "Effectué" && p.DatePaiement >= periodePrecedenteDebut && p.DatePaiement <= periodePrecedenteFin)
-                .SumAsync(p => p.Montant);
-            
-            var evolution = totalPrecedent > 0 
-                ? (total - totalPrecedent) / totalPrecedent * 100 
-                : 0;
-            
-            var caParMois = new Dictionary<string, decimal>();
-            for (var date = debut.Value; date <= fin.Value; date = date.AddMonths(1))
-            {
-                var moisDebut = new DateTime(date.Year, date.Month, 1);
-                var moisFin = moisDebut.AddMonths(1).AddDays(-1);
-                
-                var caMois = await _context.Paiements
-                    .Where(p => p.Statut == "Effectué" && p.DatePaiement >= moisDebut && p.DatePaiement <= moisFin)
-                    .SumAsync(p => p.Montant);
-                
-                caParMois[$"{moisDebut:MM/yyyy}"] = caMois;
-            }
-            
-            var caParTerrain = await _context.Terrains
-                .Select(t => new
-                {
-                    t.Nom,
-                    Ca = t.Creneaux
-                        .SelectMany(c => c.Reservations)
-                        .Where(r => r.DateReservation >= debut && r.DateReservation <= fin && r.Statut == "Confirmée")
-                        .Sum(r => r.MontantTotal)
-                })
-                .ToDictionaryAsync(x => x.Nom, x => x.Ca);
-            
-            return new ChiffreAffairesDto
-            {
-                Total = total,
-                Evolution = Math.Round(evolution, 2),
-                ParMois = caParMois,
-                ParTerrain = caParTerrain
-            };
-        }
-
+       public async Task<ChiffreAffairesDto> GetChiffreAffairesAsync(DateTime? debut = null, DateTime? fin = null)
+       {
+           debut ??= DateTime.Today.AddMonths(-1);
+           fin ??= DateTime.Today;
+           
+           var total = await _context.Paiements
+               .Where(p => p.Statut == "Effectué" && p.DatePaiement >= debut && p.DatePaiement <= fin)
+               .SumAsync(p => p.Montant);
+           
+           var duree = fin.Value - debut.Value;
+           var periodePrecedenteDebut = debut.Value.Subtract(duree);
+           var periodePrecedenteFin = debut.Value.AddDays(-1);
+           
+           var totalPrecedent = await _context.Paiements
+               .Where(p => p.Statut == "Effectué" && p.DatePaiement >= periodePrecedenteDebut && p.DatePaiement <= periodePrecedenteFin)
+               .SumAsync(p => p.Montant);
+           
+           var evolution = totalPrecedent > 0 
+               ? (total - totalPrecedent) / totalPrecedent * 100 
+               : 0;
+           
+           var caParMois = new Dictionary<string, decimal>();
+           for (var date = debut.Value; date <= fin.Value; date = date.AddMonths(1))
+           {
+               var moisDebut = new DateTime(date.Year, date.Month, 1);
+               var moisFin = moisDebut.AddMonths(1).AddDays(-1);
+               
+               var caMois = await _context.Paiements
+                   .Where(p => p.Statut == "Effectué" && p.DatePaiement >= moisDebut && p.DatePaiement <= moisFin)
+                   .SumAsync(p => p.Montant);
+               
+               caParMois[$"{moisDebut:MM/yyyy}"] = caMois;
+           }
+           
+           // ============================================
+           // CORRECTION: Éviter les clés en double
+           // ============================================
+           var caParTerrainList = await _context.Terrains
+               .Select(t => new
+               {
+                   t.Nom,
+                   Ca = t.Creneaux
+                       .SelectMany(c => c.Reservations)
+                       .Where(r => r.DateReservation >= debut && r.DateReservation <= fin && r.Statut == "Confirmée")
+                       .Sum(r => r.MontantTotal)
+               })
+               .ToListAsync();
+           
+           // Grouper par nom pour éviter les doublons
+           var caParTerrain = caParTerrainList
+               .GroupBy(x => x.Nom)
+               .ToDictionary(
+                   g => g.Key,
+                   g => g.Sum(x => x.Ca)
+               );
+           
+           return new ChiffreAffairesDto
+           {
+               Total = total,
+               Evolution = Math.Round(evolution, 2),
+               ParMois = caParMois,
+               ParTerrain = caParTerrain
+           };
+       }
         public async Task<List<TerrainOccupationDto>> GetTopTerrainsAsync(int top = 5)
         {
             return await _context.Terrains
