@@ -11,7 +11,18 @@ public class ApiClient
 
     public ApiClient(string baseUrl)
     {
-        _httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
+
+        if (!baseUrl.EndsWith("/"))
+            baseUrl += "/";
+
+        // pour accepter le certificat auto-signé
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback =
+                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
+
+        _httpClient = new HttpClient(handler) { BaseAddress = new Uri(baseUrl) };
     }
 
     public void SetToken(string token) => _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);

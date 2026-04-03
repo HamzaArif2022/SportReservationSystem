@@ -47,7 +47,7 @@ namespace SportReservationSystem.API.Services
             
             await _context.SaveChangesAsync();
             
-            await _notificationService.SendReservationConfirmationAsync(reservation.Id);
+            //await _notificationService.SendReservationConfirmationAsync(reservation.Id);
             
             return paiement;
         }

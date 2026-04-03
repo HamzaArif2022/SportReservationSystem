@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -31,7 +32,10 @@ public class ApiClient
 
     public async Task<T?> GetAsync<T>(string endpoint)
     {
+        var authHeader = _httpClient.DefaultRequestHeaders.Authorization;
+
         var response = await _httpClient.GetAsync(endpoint);
+  
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<T>(json, _jsonOptions);

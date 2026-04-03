@@ -1,67 +1,112 @@
 using System;
+using System.Drawing;
 using System.Text.Json;
 using System.Windows.Forms;
-using MetroFramework.Forms;
 using SportReservationSystem.Shared.DTOs;
 
-namespace SportReservationSystem.GestionnaireApp;
-
-public partial class FormLogin : MetroForm
+namespace SportReservationSystem.GestionnaireApp
 {
-    private readonly ApiClient _apiClient = new("http://localhost:5161/");
-
-    public FormLogin()
+    public partial class FormLogin : MetroFramework.Forms.MetroForm
     {
-        InitializeComponent();
-        _btnLogin.Click += BtnLogin_Click;
-    }
+        private readonly ApiClient _apiClient = new("https://localhost:7161/");
 
-    private async void BtnLogin_Click(object? sender, EventArgs e)
-    {
-        try
+        // Couleurs absentes du Designer
+        private static readonly Color GoldDim = Color.FromArgb(140, 105, 15);
+        private static readonly Color TextDark = Color.FromArgb(12, 12, 12);
+
+        public FormLogin()
         {
-            var result = await _apiClient.PostAsync<JsonElement>("api/auth/login", new LoginDto
+            InitializeComponent();
+
+            btnLogin.Click += BtnLogin_Click;
+
+            txtPassword.KeyDown += (_, e) =>
             {
-                Email = _txtEmail.Text,
-                Password = _txtPassword.Text
-            });
-
-            if (result.ValueKind != JsonValueKind.Object)
-            {
-                MessageBox.Show("Reponse login invalide.");
-                return;
-            }
-
-            // Vérifier si la réponse contient un succès
-            if (result.TryGetProperty("success", out var successProp) && !successProp.GetBoolean())
-            {
-                string message = result.GetProperty("message").GetString() ?? "Erreur de connexion";
-                MessageBox.Show(message);
-                return;
-            }
-
-            // Extraire l'objet user
-            var user = result.GetProperty("user");
-            var role = user.GetProperty("role").GetString() ?? string.Empty;
-            
-            // Vérifier le rôle - accepte "Gestionnaire" (et "Admin" si besoin)
-            if (!string.Equals(role, "Gestionnaire", StringComparison.OrdinalIgnoreCase))
-            {
-                MessageBox.Show("Ce compte n'est pas un gestionnaire. Veuillez utiliser l'application client.");
-                return;
-            }
-
-            var token = result.GetProperty("token").GetString() ?? string.Empty;
-            _apiClient.SetToken(token);
-
-            Hide();
-            var main = new FormMainGestionnaire(_apiClient);
-            main.FormClosed += (_, _) => Close();
-            main.Show();
+                if (e.KeyCode == Keys.Enter) BtnLogin_Click(null, EventArgs.Empty);
+            };
         }
-        catch (Exception ex)
+
+        // ════════════════════════════════════════════════════════════════
+        // CONNEXION
+        // ════════════════════════════════════════════════════════════════
+        private async void BtnLogin_Click(object? sender, EventArgs e)
         {
-            MessageBox.Show($"Echec login: {ex.Message}");
+            if (string.IsNullOrWhiteSpace(txtEmail.Text) ||
+                string.IsNullOrWhiteSpace(txtPassword.Text))
+            {
+                MessageBox.Show(this,
+                    "Veuillez renseigner votre e-mail et votre mot de passe.",
+                    "Champs requis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            SetLoginState(loading: true);
+
+            try
+            {
+                var result = await _apiClient.PostAsync<JsonElement>("api/auth/login", new LoginDto
+                {
+                    Email = txtEmail.Text.Trim(),
+                    Password = txtPassword.Text,
+                });
+
+                if (result.ValueKind != JsonValueKind.Object)
+                {
+                    MessageBox.Show(this,
+                        "Réponse du serveur invalide.",
+                        "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (result.TryGetProperty("success", out var successProp) && !successProp.GetBoolean())
+                {
+                    var msg = result.GetProperty("message").GetString() ?? "Erreur de connexion";
+                    MessageBox.Show(this, msg,
+                        "Accès refusé", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var user = result.GetProperty("user");
+                var role = user.GetProperty("role").GetString() ?? string.Empty;
+
+                if (!string.Equals(role, "Gestionnaire", StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show(this,
+                        "Ce compte n'est pas un compte gestionnaire.\n" +
+                        "Veuillez utiliser l'application client.",
+                        "Accès refusé", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var token = result.GetProperty("token").GetString() ?? string.Empty;
+                _apiClient.SetToken(token);
+
+                Hide();
+                var main = new FormMainGestionnaire(_apiClient);
+                main.FormClosed += (_, _) => Close();
+                main.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this,
+                    $"Échec de connexion :\n{ex.Message}",
+                    "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                SetLoginState(loading: false);
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // HELPERS
+        // ════════════════════════════════════════════════════════════════
+        private void SetLoginState(bool loading)
+        {
+            btnLogin.Enabled = !loading;
+            btnLogin.Text = loading ? "Connexion en cours..." : "Accéder au tableau de bord";
+            btnLogin.BackColor = loading ? GoldDim : Gold;
+            btnLogin.ForeColor = TextDark;
         }
     }
 }

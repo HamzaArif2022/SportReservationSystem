@@ -15,6 +15,6 @@ namespace SportReservationSystem.Shared.Models
         public Terrain Terrain { get; set; } = null!;
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
         
-        public string DisplayText => $"{Date:dd/MM/yyyy} - {HeureDebut:hh\\:mm} à {HeureFin:hh\\:mm}";
+        public string DateHeure  => $"{Date:dd/MM/yyyy} - {HeureDebut:hh\\:mm} à {HeureFin:hh\\:mm}";
     }
 }

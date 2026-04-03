@@ -1,109 +1,205 @@
-using System.Windows.Forms;
+﻿using System.Drawing;
 
 namespace SportReservationSystem.ClientApp
 {
     partial class FormLogin
     {
-        private TextBox txtEmail;
-        private TextBox txtPassword;
-        private Button btnLogin;
-        private Button btnRegister;
-        private Label lblTitle;
-        private Label lblEmail;
-        private Label lblPassword;
+        private System.ComponentModel.IContainer components = null;
+
+        // ── Palette Menthe Dorée ─────────────────────────────────────────
+        private static readonly Color MintBg = Color.FromArgb(0, 26, 18);
+        private static readonly Color MintMid = Color.FromArgb(0, 42, 26);
+        private static readonly Color MintAccent = Color.FromArgb(5, 150, 105);
+        private static readonly Color MintLight = Color.FromArgb(110, 231, 183);
+        private static readonly Color Gold = Color.FromArgb(251, 191, 36);
+        private static readonly Color TextLight = Color.FromArgb(230, 255, 247);
+        private static readonly Color TextMuted = Color.FromArgb(110, 188, 160);
+
+        // ── Contrôles ────────────────────────────────────────────────────
+        private MetroFramework.Controls.MetroLabel lblTitle;
+        private MetroFramework.Controls.MetroLabel lblEmail;
+        private MetroFramework.Controls.MetroLabel lblPassword;
+        private MetroFramework.Controls.MetroLabel lblSubtitle;
+        private MetroFramework.Controls.MetroLabel lblDivider;
+        private MetroFramework.Controls.MetroTextBox txtEmail;
+        private MetroFramework.Controls.MetroTextBox txtPassword;
+        private MetroFramework.Controls.MetroButton btnLogin;
+        private MetroFramework.Controls.MetroButton btnRegister;
+        private MetroFramework.Controls.MetroPanel pnlCard;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+                components.Dispose();
+            base.Dispose(disposing);
+        }
 
         private void InitializeComponent()
         {
-            // ============================================
-            // Titre
-            // ============================================
-            this.lblTitle = new Label();
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold);
-            this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(0, 120, 215);
-            this.lblTitle.Location = new System.Drawing.Point(80, 30);
-            this.lblTitle.Text = "Sport Reservation";
-            this.lblTitle.Size = new System.Drawing.Size(240, 37);
-            
-            // ============================================
-            // Label Email
-            // ============================================
-            this.lblEmail = new Label();
-            this.lblEmail.AutoSize = true;
-            this.lblEmail.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblEmail.Location = new System.Drawing.Point(50, 100);
-            this.lblEmail.Text = "Email:";
-            this.lblEmail.Size = new System.Drawing.Size(46, 19);
-            
-            // ============================================
-            // TextBox Email
-            // ============================================
-            this.txtEmail = new TextBox();
-            this.txtEmail.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.txtEmail.Location = new System.Drawing.Point(120, 97);
-            this.txtEmail.Size = new System.Drawing.Size(220, 27);
-            
-            // ============================================
-            // Label Mot de passe
-            // ============================================
-            this.lblPassword = new Label();
-            this.lblPassword.AutoSize = true;
-            this.lblPassword.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblPassword.Location = new System.Drawing.Point(50, 140);
-            this.lblPassword.Text = "Mot de passe:";
-            this.lblPassword.Size = new System.Drawing.Size(76, 19);
-            
-            // ============================================
-            // TextBox Mot de passe
-            // ============================================
-            this.txtPassword = new TextBox();
-            this.txtPassword.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.txtPassword.Location = new System.Drawing.Point(130, 137);
-            this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(210, 27);
-            
-            // ============================================
-            // Bouton Se connecter
-            // ============================================
-            this.btnLogin = new Button();
-            this.btnLogin.BackColor = System.Drawing.Color.FromArgb(0, 120, 215);
-            this.btnLogin.FlatStyle = FlatStyle.Flat;
-            this.btnLogin.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnLogin.ForeColor = System.Drawing.Color.White;
-            this.btnLogin.Location = new System.Drawing.Point(120, 180);
-            this.btnLogin.Size = new System.Drawing.Size(100, 35);
-            this.btnLogin.Text = "Se connecter";
-            this.btnLogin.UseVisualStyleBackColor = false;
-            
-            // ============================================
-            // Bouton S'inscrire
-            // ============================================
-            this.btnRegister = new Button();
-            this.btnRegister.BackColor = System.Drawing.Color.FromArgb(102, 102, 102);
-            this.btnRegister.FlatStyle = FlatStyle.Flat;
-            this.btnRegister.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.btnRegister.ForeColor = System.Drawing.Color.White;
-            this.btnRegister.Location = new System.Drawing.Point(230, 180);
-            this.btnRegister.Size = new System.Drawing.Size(100, 35);
-            this.btnRegister.Text = "S'inscrire";
-            this.btnRegister.UseVisualStyleBackColor = false;
-            
-            // ============================================
-            // Form
-            // ============================================
-            this.ClientSize = new System.Drawing.Size(400, 260);
-            this.Controls.Add(this.lblTitle);
-            this.Controls.Add(this.lblEmail);
-            this.Controls.Add(this.txtEmail);
-            this.Controls.Add(this.lblPassword);
-            this.Controls.Add(this.txtPassword);
-            this.Controls.Add(this.btnLogin);
-            this.Controls.Add(this.btnRegister);
-            this.Text = "Connexion - Sport Reservation";
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.BackColor = System.Drawing.Color.White;
+            components = new System.ComponentModel.Container();
+
+            // ── FORM ────────────────────────────────────────────────────
+            this.Text = "Connexion — Sport Réservation";
+            this.ClientSize = new Size(440, 480);
+            this.MinimumSize = new Size(440, 480);
+            this.MaximumSize = new Size(440, 480);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Style = MetroFramework.MetroColorStyle.Teal;
+            this.Theme = MetroFramework.MetroThemeStyle.Dark;
+            this.ShadowType = MetroFramework.Forms.MetroFormShadowType.AeroShadow;
+            this.Resizable = false;
+            this.BackColor = MintBg;
+
+            // ── CARTE ───────────────────────────────────────────────────
+            pnlCard = new MetroFramework.Controls.MetroPanel
+            {
+                Location = new Point(30, 70),
+                Size = new Size(380, 370),
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                BackColor = MintMid,
+            };
+
+            // ── Titre ───────────────────────────────────────────────────
+            lblTitle = new MetroFramework.Controls.MetroLabel
+            {
+                Text = "🏅 Sport Réservation",
+                Location = new Point(0, 28),
+                Size = new Size(380, 38),
+                FontSize = MetroFramework.MetroLabelSize.Tall,
+                FontWeight = MetroFramework.MetroLabelWeight.Bold,
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                ForeColor = MintLight,
+                BackColor = MintMid,
+                TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
+            };
+
+            // ── Sous-titre ──────────────────────────────────────────────
+            lblSubtitle = new MetroFramework.Controls.MetroLabel
+            {
+                Text = "Connectez-vous à votre espace client",
+                Location = new Point(0, 70),
+                Size = new Size(380, 22),
+                FontSize = MetroFramework.MetroLabelSize.Small,
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                ForeColor = TextMuted,
+                BackColor = MintMid,
+                TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
+            };
+
+            // ── Séparateur ──────────────────────────────────────────────
+            lblDivider = new MetroFramework.Controls.MetroLabel
+            {
+                Text = "",
+                Location = new Point(30, 102),
+                Size = new Size(320, 2),
+                BackColor = MintAccent,
+                ForeColor = MintAccent,
+            };
+
+            // ── Label Email ─────────────────────────────────────────────
+            lblEmail = new MetroFramework.Controls.MetroLabel
+            {
+                Text = "Adresse e-mail",
+                Location = new Point(30, 120),
+                Size = new Size(320, 20),
+                FontSize = MetroFramework.MetroLabelSize.Small,
+                FontWeight = MetroFramework.MetroLabelWeight.Bold,
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                ForeColor = TextMuted,
+                BackColor = MintMid,
+            };
+
+            // ── TextBox Email ───────────────────────────────────────────
+            txtEmail = new MetroFramework.Controls.MetroTextBox
+            {
+                Location = new Point(30, 144),
+                Size = new Size(320, 34),
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                FontSize = MetroFramework.MetroTextBoxSize.Medium,
+                BackColor = MintBg,
+                ForeColor = TextLight,
+                WaterMark = "exemple@email.com",
+                WaterMarkColor = TextMuted,
+                UseSelectable = true,
+            };
+
+            // ── Label Mot de passe ──────────────────────────────────────
+            lblPassword = new MetroFramework.Controls.MetroLabel
+            {
+                Text = "Mot de passe",
+                Location = new Point(30, 192),
+                Size = new Size(320, 20),
+                FontSize = MetroFramework.MetroLabelSize.Small,
+                FontWeight = MetroFramework.MetroLabelWeight.Bold,
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                ForeColor = TextMuted,
+                BackColor = MintMid,
+            };
+
+            // ── TextBox Mot de passe ────────────────────────────────────
+            txtPassword = new MetroFramework.Controls.MetroTextBox
+            {
+                Location = new Point(30, 216),
+                Size = new Size(320, 34),
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                FontSize = MetroFramework.MetroTextBoxSize.Medium,
+                BackColor = MintBg,
+                ForeColor = TextLight,
+                PasswordChar = '●',
+                WaterMark = "••••••••",
+                WaterMarkColor = TextMuted,
+                UseSelectable = true,
+            };
+
+            // ── Bouton Se connecter ─────────────────────────────────────
+            btnLogin = new MetroFramework.Controls.MetroButton
+            {
+                Text = "Se connecter",
+                Location = new Point(30, 278),
+                Size = new Size(320, 40),
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                FontSize = MetroFramework.MetroButtonSize.Medium,
+                FontWeight = MetroFramework.MetroButtonWeight.Bold,
+                BackColor = Gold,
+                ForeColor = Color.FromArgb(12, 12, 12),
+                UseSelectable = true,
+            };
+
+            // ── Bouton Créer un compte ──────────────────────────────────
+            btnRegister = new MetroFramework.Controls.MetroButton
+            {
+                Text = "Créer un compte",
+                Location = new Point(30, 328),
+                Size = new Size(320, 36),
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                FontSize = MetroFramework.MetroButtonSize.Small,
+                FontWeight = MetroFramework.MetroButtonWeight.Regular,
+                BackColor = MintBg,
+                ForeColor = MintLight,
+                UseSelectable = true,
+            };
+
+            // ── Assemblage ──────────────────────────────────────────────
+            pnlCard.Controls.Add(lblTitle);
+            pnlCard.Controls.Add(lblSubtitle);
+            pnlCard.Controls.Add(lblDivider);
+            pnlCard.Controls.Add(lblEmail);
+            pnlCard.Controls.Add(txtEmail);
+            pnlCard.Controls.Add(lblPassword);
+            pnlCard.Controls.Add(txtPassword);
+            pnlCard.Controls.Add(btnLogin);
+            pnlCard.Controls.Add(btnRegister);
+
+            this.Controls.Add(pnlCard);
         }
     }
 }

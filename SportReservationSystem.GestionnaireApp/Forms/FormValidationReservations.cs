@@ -1,177 +1,157 @@
-using MetroFramework.Forms;
-using SportReservationSystem.GestionnaireApp;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using SportReservationSystem.Shared.DTOs;
 
 namespace SportReservationSystem.GestionnaireApp.Forms
 {
-    public partial class FormValidationReservations : MetroForm
+    public partial class FormValidationReservations : MetroFramework.Forms.MetroForm
     {
         private readonly ApiClient _apiClient;
-        private List<ReservationDto> _reservations;
+        private List<ReservationDto> _reservations = new();
 
         public FormValidationReservations(ApiClient apiClient)
         {
             _apiClient = apiClient;
             InitializeComponent();
+
             Load += async (_, _) => await LoadReservationsAsync();
-            
             btnValider.Click += async (_, _) => await ValiderReservationAsync();
             btnRefuser.Click += async (_, _) => await RefuserReservationAsync();
             btnRafraichir.Click += async (_, _) => await LoadReservationsAsync();
         }
 
+        // ════════════════════════════════════════════════════════════════
+        // CHARGEMENT
+        // ════════════════════════════════════════════════════════════════
         private async Task LoadReservationsAsync()
         {
-            _reservations = await _apiClient.GetAsync<List<ReservationDto>>("api/reservations/en-attente");
-            dataGridViewReservations.DataSource = _reservations;
-            lblCount.Text = $"{_reservations.Count} réservation(s) en attente";
-            
-            if (_reservations.Count == 0)
+            try
             {
-                btnValider.Enabled = false;
-                btnRefuser.Enabled = false;
+                _reservations = await _apiClient.GetAsync<List<ReservationDto>>(
+                    "api/reservations/en-attente") ?? new();
+
+                dataGridViewReservations.DataSource = _reservations;
+                lblCount.Text = $"{_reservations.Count} réservation(s) en attente";
+
+                bool hasRows = _reservations.Count > 0;
+                btnValider.Enabled = hasRows;
+                btnRefuser.Enabled = hasRows;
             }
-            else
+            catch (Exception ex)
             {
-                btnValider.Enabled = true;
-                btnRefuser.Enabled = true;
+                MessageBox.Show(this,
+                    $"Erreur chargement :\n{ex.Message}",
+                    "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        // ════════════════════════════════════════════════════════════════
+        // VALIDER
+        // ════════════════════════════════════════════════════════════════
         private async Task ValiderReservationAsync()
         {
             if (dataGridViewReservations.CurrentRow?.DataBoundItem is not ReservationDto reservation)
             {
-                MessageBox.Show("Sélectionnez une réservation à valider.", "Information", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this,
+                    "Sélectionnez une réservation à valider.",
+                    "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            
-            var result = MessageBox.Show($"Valider la réservation de {reservation.ClientNom} {reservation.ClientPrenom} ?", 
-                "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            
-            if (result == DialogResult.Yes)
+
+            var confirm = MessageBox.Show(this,
+                $"Valider la réservation de {reservation.ClientNom} {reservation.ClientPrenom} ?\n\n" +
+                $"Terrain : {reservation.TerrainNom}\n" +
+                $"Date    : {reservation.DateCreneau:dd/MM/yyyy}\n" +
+                $"Horaire : {reservation.HeureDebut:hh\\:mm} – {reservation.HeureFin:hh\\:mm}\n" +
+                $"Montant : {reservation.MontantTotal} DH",
+                "Confirmer la validation",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (confirm != DialogResult.Yes) return;
+
+            SetValidateState(loading: true);
+            try
             {
-                var success = await _apiClient.PutAsync($"api/reservations/{reservation.Id}/validate", null);
-                
-                if (success)
+                var ok = await _apiClient.PutAsync($"api/reservations/{reservation.Id}/validate");
+                if (ok)
                 {
-                    MessageBox.Show("Réservation validée avec succès.", "Succès", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(this,
+                        $"Réservation N°{reservation.Id} validée avec succès.",
+                        "Succès", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     await LoadReservationsAsync();
                 }
                 else
                 {
-                    MessageBox.Show("Erreur lors de la validation.", "Erreur", 
+                    MessageBox.Show(this,
+                        "Validation impossible.", "Erreur",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            finally { SetValidateState(loading: false); }
         }
 
+        // ════════════════════════════════════════════════════════════════
+        // REFUSER
+        // ════════════════════════════════════════════════════════════════
         private async Task RefuserReservationAsync()
         {
             if (dataGridViewReservations.CurrentRow?.DataBoundItem is not ReservationDto reservation)
             {
-                MessageBox.Show("Sélectionnez une réservation à refuser.", "Information", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this,
+                    "Sélectionnez une réservation à refuser.",
+                    "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            
-            var motif = Microsoft.VisualBasic.Interaction.InputBox("Motif du refus :", "Refus de réservation", "");
-            
+
+            var motif = Microsoft.VisualBasic.Interaction.InputBox(
+                "Motif du refus :", "Refus de réservation", "");
+
             if (string.IsNullOrWhiteSpace(motif))
             {
-                MessageBox.Show("Un motif est requis pour refuser la réservation.", "Information", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this,
+                    "Un motif est requis pour refuser la réservation.",
+                    "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            
-            var success = await _apiClient.PutAsync($"api/reservations/{reservation.Id}/refuse", new { motif });
-            
-            if (success)
+
+            SetRefuseState(loading: true);
+            try
             {
-                MessageBox.Show("Réservation refusée avec succès.", "Succès", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                await LoadReservationsAsync();
+                var ok = await _apiClient.PutAsync(
+                    $"api/reservations/{reservation.Id}/refuse", new { motif });
+                if (ok)
+                {
+                    MessageBox.Show(this,
+                        $"Réservation N°{reservation.Id} refusée.",
+                        "Succès", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    await LoadReservationsAsync();
+                }
+                else
+                {
+                    MessageBox.Show(this,
+                        "Refus impossible.", "Erreur",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-            else
-            {
-                MessageBox.Show("Erreur lors du refus.", "Erreur", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            finally { SetRefuseState(loading: false); }
         }
 
-        private void InitializeComponent()
+        // ════════════════════════════════════════════════════════════════
+        // HELPERS
+        // ════════════════════════════════════════════════════════════════
+        private void SetValidateState(bool loading)
         {
-            this.dataGridViewReservations = new System.Windows.Forms.DataGridView();
-            this.btnValider = new MetroFramework.Controls.MetroButton();
-            this.btnRefuser = new MetroFramework.Controls.MetroButton();
-            this.btnRafraichir = new MetroFramework.Controls.MetroButton();
-            this.lblCount = new MetroFramework.Controls.MetroLabel();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewReservations)).BeginInit();
-            this.SuspendLayout();
-            // 
-            // dataGridViewReservations
-            // 
-            this.dataGridViewReservations.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewReservations.Location = new System.Drawing.Point(23, 80);
-            this.dataGridViewReservations.Name = "dataGridViewReservations";
-            this.dataGridViewReservations.RowHeadersWidth = 51;
-            this.dataGridViewReservations.RowTemplate.Height = 24;
-            this.dataGridViewReservations.Size = new System.Drawing.Size(954, 350);
-            this.dataGridViewReservations.TabIndex = 0;
-            // 
-            // btnValider
-            // 
-            this.btnValider.Location = new System.Drawing.Point(23, 450);
-            this.btnValider.Name = "btnValider";
-            this.btnValider.Size = new System.Drawing.Size(100, 35);
-            this.btnValider.TabIndex = 1;
-            this.btnValider.Text = "Valider";
-            // 
-            // btnRefuser
-            // 
-            this.btnRefuser.Location = new System.Drawing.Point(130, 450);
-            this.btnRefuser.Name = "btnRefuser";
-            this.btnRefuser.Size = new System.Drawing.Size(100, 35);
-            this.btnRefuser.TabIndex = 2;
-            this.btnRefuser.Text = "Refuser";
-            // 
-            // btnRafraichir
-            // 
-            this.btnRafraichir.Location = new System.Drawing.Point(877, 450);
-            this.btnRafraichir.Name = "btnRafraichir";
-            this.btnRafraichir.Size = new System.Drawing.Size(100, 35);
-            this.btnRafraichir.TabIndex = 3;
-            this.btnRafraichir.Text = "Rafraîchir";
-            // 
-            // lblCount
-            // 
-            this.lblCount.AutoSize = true;
-            this.lblCount.FontSize = MetroFramework.MetroLabelSize.Tall;
-            this.lblCount.Location = new System.Drawing.Point(23, 40);
-            this.lblCount.Name = "lblCount";
-            this.lblCount.Size = new System.Drawing.Size(0, 25);
-            this.lblCount.TabIndex = 4;
-            // 
-            // FormValidationReservations
-            // 
-            this.ClientSize = new System.Drawing.Size(1000, 500);
-            this.Controls.Add(this.lblCount);
-            this.Controls.Add(this.btnRafraichir);
-            this.Controls.Add(this.btnRefuser);
-            this.Controls.Add(this.btnValider);
-            this.Controls.Add(this.dataGridViewReservations);
-            this.Text = "Validation des Réservations";
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewReservations)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            btnValider.Enabled = !loading;
+            btnValider.Text = loading ? "Validation..." : "✔  Valider";
         }
 
-        private System.Windows.Forms.DataGridView dataGridViewReservations;
-        private MetroFramework.Controls.MetroButton btnValider;
-        private MetroFramework.Controls.MetroButton btnRefuser;
-        private MetroFramework.Controls.MetroButton btnRafraichir;
-        private MetroFramework.Controls.MetroLabel lblCount;
+        private void SetRefuseState(bool loading)
+        {
+            btnRefuser.Enabled = !loading;
+            btnRefuser.Text = loading ? "Refus..." : "✖  Refuser";
+        }
     }
 }

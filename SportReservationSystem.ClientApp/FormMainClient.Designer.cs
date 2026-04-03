@@ -1,207 +1,288 @@
-using System.Windows.Forms;
+using System.Drawing;
 
 namespace SportReservationSystem.ClientApp
 {
     partial class FormMainClient
     {
-        private TabControl _tabs = null!;
-        private TabPage _tabTerrains = null!;
-        private TabPage _tabCreneaux = null!;
-        private TabPage _tabReservations = null!;
-        private DataGridView _gridTerrains = null!;
-        private DataGridView _gridCreneaux = null!;
-        private DataGridView _gridReservations = null!;
-        private DateTimePicker _dateFilter = null!;
-        private Button _btnSearch = null!;
-        private Button _btnBook = null!;
-        private Button _btnRefreshReservations = null!;
-        private Button _btnCancelReservation = null!;
-        private Panel _pnlSearch = null!;
-        private Panel _pnlReservations = null!;
-        private Panel _pnlNavigation = null!;  // Panel de navigation en haut
+        private System.ComponentModel.IContainer components = null;
+
+        // ── Palette Menthe Dorée ─────────────────────────────────────────
+        //   Fond principal  #001a12   vert nuit profond
+        //   Fond mid        #002a1a   légèrement plus clair
+        //   Accent menthe   #059669   vert émeraude vif
+        //   Menthe claire   #6ee7b7   titre / texte accentué
+        //   Or              #fbbf24   bouton réserver + highlights
+        //   Texte clair     #e6fff7   texte principal
+        //   Texte atténué   #6ebca0   labels secondaires
+
+        private static readonly Color MintBg = Color.FromArgb(0, 26, 18);
+        private static readonly Color MintMid = Color.FromArgb(0, 42, 26);
+        private static readonly Color MintAccent = Color.FromArgb(5, 150, 105);
+        private static readonly Color MintLight = Color.FromArgb(110, 231, 183);
+        private static readonly Color Gold = Color.FromArgb(251, 191, 36);
+        private static readonly Color TextLight = Color.FromArgb(230, 255, 247);
+        private static readonly Color TextMuted = Color.FromArgb(110, 188, 160);
+
+        // ── Déclarations ─────────────────────────────────────────────────
+        private MetroFramework.Controls.MetroTabControl _tabs;
+        private MetroFramework.Controls.MetroTabPage _tabTerrains;
+        private MetroFramework.Controls.MetroTabPage _tabCreneaux;
+        private MetroFramework.Controls.MetroTabPage _tabReservations;
+        private MetroFramework.Controls.MetroPanel _pnlNavigation;
+
+        private MetroFramework.Controls.MetroGrid _gridTerrains;
+        private MetroFramework.Controls.MetroLabel _lblTerrainsTitle;
+
+        private MetroFramework.Controls.MetroGrid _gridCreneaux;
+        private MetroFramework.Controls.MetroLabel _lblCreneauxTitle;
+        private MetroFramework.Controls.MetroLabel _lblDateFilter;
+        private MetroFramework.Controls.MetroPanel _pnlCreneauxFilter;
+        private System.Windows.Forms.DateTimePicker _dateFilter;
+        private MetroFramework.Controls.MetroButton _btnSearch;
+        private MetroFramework.Controls.MetroButton _btnBook;
+
+        private MetroFramework.Controls.MetroGrid _gridReservations;
+        private MetroFramework.Controls.MetroLabel _lblReservationsTitle;
+        private MetroFramework.Controls.MetroButton _btnRefreshReservations;
+        private MetroFramework.Controls.MetroButton _btnCancelReservation;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+                components.Dispose();
+            base.Dispose(disposing);
+        }
 
         private void InitializeComponent()
         {
-            _tabs = new TabControl();
-            _tabTerrains = new TabPage();
-            _gridTerrains = new DataGridView();
-            _tabCreneaux = new TabPage();
-            _gridCreneaux = new DataGridView();
-            _pnlSearch = new Panel();
-            _dateFilter = new DateTimePicker();
-            _btnSearch = new Button();
-            _btnBook = new Button();
-            _tabReservations = new TabPage();
-            _gridReservations = new DataGridView();
-            _pnlReservations = new Panel();
-            _btnRefreshReservations = new Button();
-            _btnCancelReservation = new Button();
-            _pnlNavigation = new Panel();
-            
-            _tabs.SuspendLayout();
-            _tabTerrains.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)_gridTerrains).BeginInit();
-            _tabCreneaux.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)_gridCreneaux).BeginInit();
-            _pnlSearch.SuspendLayout();
-            _tabReservations.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)_gridReservations).BeginInit();
-            _pnlReservations.SuspendLayout();
-            _pnlNavigation.SuspendLayout();
-            SuspendLayout();
-            
-            // ============================================
-            // PANEL DE NAVIGATION (en haut)
-            // ============================================
-            _pnlNavigation.Dock = DockStyle.Top;
-            _pnlNavigation.Height = 50;
-            _pnlNavigation.BackColor = Color.FromArgb(0, 120, 215);
-            
-            // Boutons de navigation (ajoutés dans le code)
-            // Les boutons seront créés dans FormMainClient.cs
-            
-            // ============================================
-            // TAB CONTROL (en dessous du panel de navigation)
-            // ============================================
-            _tabs.Dock = DockStyle.Fill;
-            _tabs.Controls.Add(_tabTerrains);
-            _tabs.Controls.Add(_tabCreneaux);
-            _tabs.Controls.Add(_tabReservations);
-            _tabs.Location = new Point(0, 50);  // Décalé de 50px pour laisser la place au panel
-            _tabs.Size = new Size(1000, 650);
-            _tabs.SelectedIndexChanged += _tabs_SelectedIndexChanged;
-            
-            // ============================================
-            // TabPage Terrains
-            // ============================================
+            components = new System.ComponentModel.Container();
+
+            // ════════════════════════════════════════════════════════════
+            // FORM  — hérite de MetroFramework.Forms.MetroForm
+            // ════════════════════════════════════════════════════════════
+            this.Text = "Sport Réservation — Espace Client";
+            this.ClientSize = new Size(1140, 740);
+            this.MinimumSize = new Size(960, 640);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Style = MetroFramework.MetroColorStyle.Teal;
+            this.Theme = MetroFramework.MetroThemeStyle.Dark;
+            this.ShadowType = MetroFramework.Forms.MetroFormShadowType.AeroShadow;
+            this.Resizable = true;
+            this.BackColor = MintBg;
+
+            // ════════════════════════════════════════════════════════════
+            // NAVIGATION
+            // ════════════════════════════════════════════════════════════
+            _pnlNavigation = new MetroFramework.Controls.MetroPanel
+            {
+                Location = new Point(20, 62),
+                Size = new Size(1100, 52),
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                BackColor = MintMid,
+            };
+
+            // ════════════════════════════════════════════════════════════
+            // TABS
+            // ════════════════════════════════════════════════════════════
+            _tabs = new MetroFramework.Controls.MetroTabControl
+            {
+                Location = new Point(20, 124),
+                Size = new Size(1100, 576),
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                FontSize = MetroFramework.MetroTabControlSize.Medium,
+                BackColor = MintBg,
+            };
+            _tabs.SelectedIndexChanged += new System.EventHandler(this._tabs_SelectedIndexChanged);
+
+            // ── Tab Terrains ─────────────────────────────────────────────
+            _tabTerrains = new MetroFramework.Controls.MetroTabPage
+            {
+                Text = "  Terrains",
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                BackColor = MintBg,
+            };
+
+            _lblTerrainsTitle = MakeLabel("Liste des terrains disponibles", new Point(8, 8), new Size(460, 28));
+            _gridTerrains = MakeGrid(new Point(8, 44), new Size(1074, 490));
+
+            _tabTerrains.Controls.Add(_lblTerrainsTitle);
             _tabTerrains.Controls.Add(_gridTerrains);
-            _tabTerrains.Location = new Point(4, 27);
-            _tabTerrains.Size = new Size(992, 619);
-            _tabTerrains.Text = "Terrains";
-            
-            _gridTerrains.Dock = DockStyle.Fill;
-            _gridTerrains.AllowUserToResizeRows = false;
-            _gridTerrains.BackgroundColor = Color.White;
-            _gridTerrains.BorderStyle = BorderStyle.FixedSingle;
-            _gridTerrains.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            _gridTerrains.ReadOnly = true;
-            _gridTerrains.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            
-            // ============================================
-            // TabPage Créneaux
-            // ============================================
+
+            // ── Tab Créneaux ─────────────────────────────────────────────
+            _tabCreneaux = new MetroFramework.Controls.MetroTabPage
+            {
+                Text = "  Créneaux",
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                BackColor = MintBg,
+            };
+
+            _lblCreneauxTitle = MakeLabel("Créneaux disponibles", new Point(8, 8), new Size(360, 28));
+
+            _pnlCreneauxFilter = new MetroFramework.Controls.MetroPanel
+            {
+                Location = new Point(8, 44),
+                Size = new Size(1074, 50),
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                BackColor = MintMid,
+            };
+
+            _lblDateFilter = new MetroFramework.Controls.MetroLabel
+            {
+                Text = "Date :",
+                Location = new Point(10, 14),
+                Size = new Size(52, 22),
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                ForeColor = TextMuted,
+                BackColor = MintMid,
+            };
+
+            _dateFilter = new System.Windows.Forms.DateTimePicker
+            {
+                Location = new Point(68, 10),
+                Size = new Size(165, 28),
+                Format = System.Windows.Forms.DateTimePickerFormat.Short,
+                Value = System.DateTime.Today,
+                Font = new Font("Segoe UI", 10F),
+                BackColor = MintMid,
+                ForeColor = TextLight,
+                CalendarMonthBackground = MintMid,
+                CalendarForeColor = TextLight,
+                CalendarTitleBackColor = MintAccent,
+                CalendarTitleForeColor = TextLight,
+            };
+
+            _btnSearch = MakeButton("Rechercher", new Point(246, 8), new Size(132, 34));
+
+            _btnBook = MakeButton("Réserver", new Point(390, 8), new Size(132, 34));
+            _btnBook.Enabled = false;
+            _btnBook.BackColor = Gold;
+            _btnBook.ForeColor = Color.FromArgb(12, 12, 12);
+
+            _pnlCreneauxFilter.Controls.Add(_lblDateFilter);
+            _pnlCreneauxFilter.Controls.Add(_dateFilter);
+            _pnlCreneauxFilter.Controls.Add(_btnSearch);
+            _pnlCreneauxFilter.Controls.Add(_btnBook);
+
+            _gridCreneaux = MakeGrid(new Point(8, 102), new Size(1074, 432));
+
+            _tabCreneaux.Controls.Add(_lblCreneauxTitle);
+            _tabCreneaux.Controls.Add(_pnlCreneauxFilter);
             _tabCreneaux.Controls.Add(_gridCreneaux);
-            _tabCreneaux.Controls.Add(_pnlSearch);
-            _tabCreneaux.Location = new Point(4, 27);
-            _tabCreneaux.Size = new Size(992, 619);
-            _tabCreneaux.Text = "Créneaux";
-            
-            // Panel de recherche (en haut de l'onglet)
-            _pnlSearch.Dock = DockStyle.Top;
-            _pnlSearch.Height = 60;
-            _pnlSearch.Padding = new Padding(10);
-            _pnlSearch.BackColor = Color.FromArgb(245, 245, 245);
-            
-            // DateTimePicker
-            _dateFilter.Location = new Point(10, 15);
-            _dateFilter.Size = new Size(200, 27);
-            _dateFilter.Format = DateTimePickerFormat.Short;
-            
-            // Bouton Rechercher
-            _btnSearch.Location = new Point(220, 13);
-            _btnSearch.Size = new Size(120, 32);
-            _btnSearch.Text = "Rechercher";
-            _btnSearch.BackColor = Color.FromArgb(0, 120, 215);
-            _btnSearch.ForeColor = Color.White;
-            _btnSearch.FlatStyle = FlatStyle.Flat;
-            _btnSearch.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            
-            // Bouton Réserver
-            _btnBook.Location = new Point(350, 13);
-            _btnBook.Size = new Size(120, 32);
-            _btnBook.Text = "Réserver";
-            _btnBook.BackColor = Color.FromArgb(0, 120, 215);
-            _btnBook.ForeColor = Color.White;
-            _btnBook.FlatStyle = FlatStyle.Flat;
-            _btnBook.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            
-            _pnlSearch.Controls.Add(_dateFilter);
-            _pnlSearch.Controls.Add(_btnSearch);
-            _pnlSearch.Controls.Add(_btnBook);
-            
-            // DataGridView Créneaux
-            _gridCreneaux.Dock = DockStyle.Fill;
-            _gridCreneaux.AllowUserToResizeRows = false;
-            _gridCreneaux.BackgroundColor = Color.White;
-            _gridCreneaux.BorderStyle = BorderStyle.FixedSingle;
-            _gridCreneaux.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            _gridCreneaux.ReadOnly = true;
-            _gridCreneaux.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            
-            // ============================================
-            // TabPage Réservations
-            // ============================================
+
+            // ── Tab Réservations ─────────────────────────────────────────
+            _tabReservations = new MetroFramework.Controls.MetroTabPage
+            {
+                Text = "  Mes Réservations",
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                BackColor = MintBg,
+            };
+
+            _lblReservationsTitle = MakeLabel("Mes réservations", new Point(8, 8), new Size(360, 28));
+
+            _btnRefreshReservations = MakeButton("Actualiser", new Point(840, 4), new Size(114, 34));
+
+            _btnCancelReservation = MakeButton("Annuler", new Point(964, 4), new Size(114, 34));
+            _btnCancelReservation.Enabled = false;
+            _btnCancelReservation.BackColor = Color.FromArgb(180, 40, 40);
+            _btnCancelReservation.ForeColor = TextLight;
+
+            _gridReservations = MakeGrid(new Point(8, 46), new Size(1074, 488));
+
+            _tabReservations.Controls.Add(_lblReservationsTitle);
+            _tabReservations.Controls.Add(_btnRefreshReservations);
+            _tabReservations.Controls.Add(_btnCancelReservation);
             _tabReservations.Controls.Add(_gridReservations);
-            _tabReservations.Controls.Add(_pnlReservations);
-            _tabReservations.Location = new Point(4, 27);
-            _tabReservations.Size = new Size(992, 619);
-            _tabReservations.Text = "Réservations";
-            
-            // Panel des actions
-            _pnlReservations.Dock = DockStyle.Top;
-            _pnlReservations.Height = 60;
-            _pnlReservations.Padding = new Padding(10);
-            _pnlReservations.BackColor = Color.FromArgb(245, 245, 245);
-            
-            // Bouton Actualiser
-            _btnRefreshReservations.Location = new Point(10, 13);
-            _btnRefreshReservations.Size = new Size(100, 32);
-            _btnRefreshReservations.Text = "Actualiser";
-            _btnRefreshReservations.BackColor = Color.FromArgb(102, 102, 102);
-            _btnRefreshReservations.ForeColor = Color.White;
-            _btnRefreshReservations.FlatStyle = FlatStyle.Flat;
-            
-            // Bouton Annuler
-            _btnCancelReservation.Location = new Point(120, 13);
-            _btnCancelReservation.Size = new Size(100, 32);
-            _btnCancelReservation.Text = "Annuler";
-            _btnCancelReservation.BackColor = Color.FromArgb(232, 17, 35);
-            _btnCancelReservation.ForeColor = Color.White;
-            _btnCancelReservation.FlatStyle = FlatStyle.Flat;
-            
-            _pnlReservations.Controls.Add(_btnRefreshReservations);
-            _pnlReservations.Controls.Add(_btnCancelReservation);
-            
-            // DataGridView Réservations
-            _gridReservations.Dock = DockStyle.Fill;
-            _gridReservations.AllowUserToResizeRows = false;
-            _gridReservations.BackgroundColor = Color.White;
-            _gridReservations.BorderStyle = BorderStyle.FixedSingle;
-            _gridReservations.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            _gridReservations.ReadOnly = true;
-            _gridReservations.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            
-            // ============================================
-            // FORM
-            // ============================================
-            ClientSize = new Size(1000, 700);
-            Controls.Add(_tabs);
-            Controls.Add(_pnlNavigation);
-            Text = "Client - Sport Reservation System";
-            StartPosition = FormStartPosition.CenterScreen;
-            BackColor = Color.White;
-            
-            _tabs.ResumeLayout(false);
-            _tabTerrains.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)_gridTerrains).EndInit();
-            _tabCreneaux.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)_gridCreneaux).EndInit();
-            _pnlSearch.ResumeLayout(false);
-            _tabReservations.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)_gridReservations).EndInit();
-            _pnlReservations.ResumeLayout(false);
-            _pnlNavigation.ResumeLayout(false);
-            ResumeLayout(false);
+
+            // ── Assemblage ───────────────────────────────────────────────
+            _tabs.TabPages.Add(_tabTerrains);
+            _tabs.TabPages.Add(_tabCreneaux);
+            _tabs.TabPages.Add(_tabReservations);
+
+            this.Controls.Add(_pnlNavigation);
+            this.Controls.Add(_tabs);
+        }
+
+        // ── Helpers ──────────────────────────────────────────────────────
+
+        private MetroFramework.Controls.MetroLabel MakeLabel(string text, Point loc, Size size)
+            => new MetroFramework.Controls.MetroLabel
+            {
+                Text = text,
+                Location = loc,
+                Size = size,
+                FontSize = MetroFramework.MetroLabelSize.Tall,
+                FontWeight = MetroFramework.MetroLabelWeight.Bold,
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                ForeColor = MintLight,
+                BackColor = MintBg,
+            };
+
+        private MetroFramework.Controls.MetroButton MakeButton(string text, Point loc, Size size)
+            => new MetroFramework.Controls.MetroButton
+            {
+                Text = text,
+                Location = loc,
+                Size = size,
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                FontSize = MetroFramework.MetroButtonSize.Medium,
+                FontWeight = MetroFramework.MetroButtonWeight.Bold,
+                UseSelectable = true,
+            };
+
+        private MetroFramework.Controls.MetroGrid MakeGrid(Point loc, Size size)
+        {
+            var g = new MetroFramework.Controls.MetroGrid
+            {
+                Location = loc,
+                Size = size,
+                Style = MetroFramework.MetroColorStyle.Teal,
+                Theme = MetroFramework.MetroThemeStyle.Dark,
+                ReadOnly = true,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect,
+                AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill,
+                BackgroundColor = MintBg,
+                GridColor = MintMid,
+                BorderStyle = System.Windows.Forms.BorderStyle.None,
+                ColumnHeadersHeight = 38,
+                EnableHeadersVisualStyles = false,
+                RowTemplate = { Height = 32 },
+            };
+
+            g.ColumnHeadersDefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle
+            {
+                BackColor = MintMid,
+                ForeColor = MintLight,
+                SelectionBackColor = MintAccent,
+                SelectionForeColor = TextLight,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+            };
+            g.DefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle
+            {
+                BackColor = MintBg,
+                ForeColor = TextLight,
+                SelectionBackColor = MintAccent,
+                SelectionForeColor = TextLight,
+                Font = new Font("Segoe UI", 9F),
+            };
+            g.AlternatingRowsDefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle
+            {
+                BackColor = MintMid,
+                ForeColor = TextLight,
+                SelectionBackColor = MintAccent,
+                SelectionForeColor = TextLight,
+            };
+            return g;
         }
     }
 }

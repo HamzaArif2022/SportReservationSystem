@@ -1,12 +1,13 @@
+﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using MetroFramework.Forms;
-using SportReservationSystem.ClientApp;
 using SportReservationSystem.Shared.DTOs;
 
 namespace SportReservationSystem.ClientApp.Forms
 {
-    public partial class FormHistorique : MetroForm
+    public partial class FormHistorique : MetroFramework.Forms.MetroForm
     {
         private readonly ApiClient _apiClient;
         private readonly int _clientId;
@@ -16,26 +17,41 @@ namespace SportReservationSystem.ClientApp.Forms
             _apiClient = apiClient;
             _clientId = clientId;
             InitializeComponent();
+
             Load += async (_, _) => await LoadHistoriqueAsync();
-            
             btnAnnuler.Click += async (_, _) => await AnnulerReservationAsync();
         }
 
         private async Task LoadHistoriqueAsync()
         {
-            var reservations = await _apiClient.GetAsync<List<ReservationDto>>($"api/reservations/mes-reservations");
-            dataGridViewHistorique.DataSource = reservations;
-            
-            // Colorer les lignes selon le statut
-            foreach (DataGridViewRow row in dataGridViewHistorique.Rows)
+            try
             {
-                var statut = row.Cells["Statut"].Value?.ToString();
-                if (statut == "Confirmée")
-                    row.DefaultCellStyle.BackColor = System.Drawing.Color.LightGreen;
-                else if (statut == "En attente")
-                    row.DefaultCellStyle.BackColor = System.Drawing.Color.LightYellow;
-                else if (statut == "Annulée" || statut == "Refusée")
-                    row.DefaultCellStyle.BackColor = System.Drawing.Color.LightCoral;
+                var reservations = await _apiClient.GetAsync<List<ReservationDto>>(
+                    "api/reservations/mes-reservations");
+
+                dataGridViewHistorique.DataSource = reservations;
+                lblStatus.Text = $"{reservations?.Count ?? 0} réservation(s)";
+
+                foreach (DataGridViewRow row in dataGridViewHistorique.Rows)
+                {
+                    if (row.DataBoundItem is ReservationDto r)
+                    {
+                        row.DefaultCellStyle.BackColor = r.Statut switch
+                        {
+                            "Confirmée" => Color.FromArgb(20, 80, 40),
+                            "En attente" => Color.FromArgb(60, 50, 10),
+                            "Annulée" or "Refusée" => Color.FromArgb(70, 15, 15),
+                            _ => Color.FromArgb(0, 42, 26),
+                        };
+                        row.DefaultCellStyle.ForeColor = Color.FromArgb(230, 255, 247);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this,
+                    $"Erreur chargement historique :\n{ex.Message}",
+                    "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -43,89 +59,53 @@ namespace SportReservationSystem.ClientApp.Forms
         {
             if (dataGridViewHistorique.CurrentRow?.DataBoundItem is not ReservationDto reservation)
             {
-                MessageBox.Show("Sélectionnez une réservation à annuler.", "Information", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-            
-            if (reservation.Statut != "Confirmée" && reservation.Statut != "En attente")
-            {
-                MessageBox.Show("Seules les réservations confirmées ou en attente peuvent être annulées.", 
+                MessageBox.Show(this,
+                    "Sélectionnez une réservation à annuler.",
                     "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            
-            var result = MessageBox.Show($"Voulez-vous annuler la réservation du {reservation.DateCreneau:dd/MM/yyyy} ?", 
-                "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            
-            if (result == DialogResult.Yes)
+
+            if (reservation.Statut != "Confirmée" && reservation.Statut != "En attente")
             {
-                var success = await _apiClient.DeleteAsync($"api/reservations/{reservation.Id}");
-                
-                if (success)
+                MessageBox.Show(this,
+                    "Seules les réservations confirmées ou en attente peuvent être annulées.",
+                    "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var confirm = MessageBox.Show(this,
+                $"Annuler la réservation du {reservation.DateCreneau:dd/MM/yyyy} ?\n\n" +
+                $"Terrain : {reservation.TerrainNom}\n" +
+                $"Horaire : {reservation.HeureDebut:hh\\:mm} – {reservation.HeureFin:hh\\:mm}",
+                "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (confirm != DialogResult.Yes) return;
+
+            try
+            {
+                btnAnnuler.Enabled = false;
+                btnAnnuler.Text = "Annulation...";
+
+                var ok = await _apiClient.DeleteAsync($"api/reservations/{reservation.Id}");
+                if (ok)
                 {
-                    MessageBox.Show("Réservation annulée avec succès. Un remboursement sera effectué.", 
+                    MessageBox.Show(this,
+                        "Réservation annulée. Un remboursement sera effectué.",
                         "Succès", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     await LoadHistoriqueAsync();
                 }
                 else
                 {
-                    MessageBox.Show("Impossible d'annuler la réservation (délai dépassé).", 
+                    MessageBox.Show(this,
+                        "Impossible d'annuler (délai dépassé).",
                         "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            finally
+            {
+                btnAnnuler.Enabled = true;
+                btnAnnuler.Text = "✖  Annuler la réservation";
+            }
         }
-
-        private void InitializeComponent()
-        {
-            this.dataGridViewHistorique = new System.Windows.Forms.DataGridView();
-            this.btnAnnuler = new MetroFramework.Controls.MetroButton();
-            this.lblTitle = new MetroFramework.Controls.MetroLabel();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewHistorique)).BeginInit();
-            this.SuspendLayout();
-            // 
-            // dataGridViewHistorique
-            // 
-            this.dataGridViewHistorique.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewHistorique.Location = new System.Drawing.Point(23, 60);
-            this.dataGridViewHistorique.Name = "dataGridViewHistorique";
-            this.dataGridViewHistorique.RowHeadersWidth = 51;
-            this.dataGridViewHistorique.RowTemplate.Height = 24;
-            this.dataGridViewHistorique.Size = new System.Drawing.Size(754, 320);
-            this.dataGridViewHistorique.TabIndex = 0;
-            // 
-            // btnAnnuler
-            // 
-            this.btnAnnuler.Location = new System.Drawing.Point(657, 390);
-            this.btnAnnuler.Name = "btnAnnuler";
-            this.btnAnnuler.Size = new System.Drawing.Size(120, 35);
-            this.btnAnnuler.TabIndex = 1;
-            this.btnAnnuler.Text = "Annuler";
-            // 
-            // lblTitle
-            // 
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.FontSize = MetroFramework.MetroLabelSize.Tall;
-            this.lblTitle.Location = new System.Drawing.Point(23, 20);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(224, 25);
-            this.lblTitle.TabIndex = 2;
-            this.lblTitle.Text = "Historique des Réservations";
-            // 
-            // FormHistorique
-            // 
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.lblTitle);
-            this.Controls.Add(this.btnAnnuler);
-            this.Controls.Add(this.dataGridViewHistorique);
-            this.Text = "Mon Historique";
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewHistorique)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
-        }
-
-        private System.Windows.Forms.DataGridView dataGridViewHistorique;
-        private MetroFramework.Controls.MetroButton btnAnnuler;
-        private MetroFramework.Controls.MetroLabel lblTitle;
     }
 }

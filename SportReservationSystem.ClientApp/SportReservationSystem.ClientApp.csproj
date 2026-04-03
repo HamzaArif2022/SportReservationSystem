@@ -1,20 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\SportReservationSystem.Shared\SportReservationSystem.Shared.csproj" />
-  </ItemGroup>
+	  <ItemGroup>
+		    <ProjectReference Include="..\SportReservationSystem.Shared\SportReservationSystem.Shared.csproj" />
+		 
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MaterialSkin.2" Version="2.3.1" />
-    <PackageReference Include="MetroModernUI" Version="1.4.0" />
-  </ItemGroup>
+	  <ItemGroup>
+		    <PackageReference Include="MaterialSkin.2" Version="2.3.1" />
+		  <PackageReference Include="MetroFrameworkCore" Version="1.0.2" />
+		 
+	</ItemGroup>
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	  <PropertyGroup>
+		    <OutputType>WinExe</OutputType>
+		    <TargetFramework>net8.0-windows</TargetFramework>
+		    <Nullable>enable</Nullable>
+		    <UseWindowsForms>true</UseWindowsForms>
+		    <ImplicitUsings>enable</ImplicitUsings>
+		 
+	</PropertyGroup>
 
 </Project>

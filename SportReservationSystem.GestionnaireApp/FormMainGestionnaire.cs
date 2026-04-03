@@ -7,7 +7,7 @@ using SportReservationSystem.Shared.DTOs;
 
 namespace SportReservationSystem.GestionnaireApp
 {
-    public partial class FormMainGestionnaire : Form
+    public partial class FormMainGestionnaire : MetroFramework.Forms.MetroForm
     {
         private readonly ApiClient _apiClient;
 
@@ -15,17 +15,19 @@ namespace SportReservationSystem.GestionnaireApp
         {
             _apiClient = apiClient;
             InitializeComponent();
-            
-            // Événements pour les boutons de gestion
-            _btnRefreshDashboard.Click += async (_, _) => await LoadDashboardAsync();
-            _btnRefresh.Click += async (_, _) => await LoadValidationsAsync();
-            _btnValidate.Click += async (_, _) => await ValidateSelectedAsync();
-            _btnCancel.Click += async (_, _) => await CancelSelectedAsync();
-            
-            // Événements pour les boutons de navigation
+
+            // Navigation rapide
             _btnValidation.Click += (_, _) => new FormValidationReservations(_apiClient).ShowDialog();
             _btnPlanning.Click += (_, _) => new FormPlanning(_apiClient).ShowDialog();
             _btnStatistiques.Click += (_, _) => new FormStatistiques(_apiClient).ShowDialog();
+
+            // Grille Dashboard
+            _btnRefreshDashboard.Click += async (_, _) => await LoadDashboardAsync();
+
+            // Grille Validations
+            _btnRefresh.Click += async (_, _) => await LoadValidationsAsync();
+            _btnValidate.Click += async (_, _) => await ValidateSelectedAsync();
+            _btnCancel.Click += async (_, _) => await CancelSelectedAsync();
 
             Load += async (_, _) =>
             {
@@ -34,137 +36,168 @@ namespace SportReservationSystem.GestionnaireApp
             };
         }
 
+        // ════════════════════════════════════════════════════════════════
+        // CHARGEMENT DASHBOARD
+        // ════════════════════════════════════════════════════════════════
         private async Task LoadDashboardAsync()
         {
             try
             {
-                var data = await _apiClient.GetAsync<List<ReservationDto>>("api/reservations/planning?date=" + DateTime.Today.ToString("yyyy-MM-dd"));
+                var data = await _apiClient.GetAsync<List<ReservationDto>>(
+                    "api/reservations/planning?date=" + DateTime.Today.ToString("yyyy-MM-dd"));
+
                 _gridDashboard.DataSource = data;
-                
-                // Colorer les lignes selon le statut
+
                 foreach (DataGridViewRow row in _gridDashboard.Rows)
                 {
-                    if (row.DataBoundItem is ReservationDto reservation)
+                    if (row.DataBoundItem is ReservationDto r)
                     {
-                        if (reservation.Statut == "Confirmée")
-                            row.DefaultCellStyle.BackColor = Color.LightGreen;
-                        else if (reservation.Statut == "En attente")
-                            row.DefaultCellStyle.BackColor = Color.LightYellow;
+                        row.DefaultCellStyle.BackColor = r.Statut switch
+                        {
+                            "Confirmée" => Color.FromArgb(20, 80, 40),
+                            "En attente" => Color.FromArgb(60, 50, 10),
+                            "Annulée" => Color.FromArgb(70, 15, 15),
+                            _ => Color.FromArgb(18, 35, 65),
+                        };
+                        row.DefaultCellStyle.ForeColor = Color.FromArgb(225, 235, 255);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur chargement planning: {ex.Message}", "Erreur", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this,
+                    $"Erreur chargement planning :\n{ex.Message}",
+                    "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        // ════════════════════════════════════════════════════════════════
+        // CHARGEMENT VALIDATIONS
+        // ════════════════════════════════════════════════════════════════
         private async Task LoadValidationsAsync()
         {
             try
             {
                 var data = await _apiClient.GetAsync<List<ReservationDto>>("api/reservations/en-attente");
                 _gridValidations.DataSource = data;
-                
-                _btnValidate.Enabled = data != null && data.Count > 0;
-                _btnCancel.Enabled = data != null && data.Count > 0;
+
+                bool hasRows = data != null && data.Count > 0;
+                _btnValidate.Enabled = hasRows;
+                _btnCancel.Enabled = hasRows;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur chargement validations: {ex.Message}", "Erreur", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this,
+                    $"Erreur chargement validations :\n{ex.Message}",
+                    "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        // ════════════════════════════════════════════════════════════════
+        // VALIDER
+        // ════════════════════════════════════════════════════════════════
         private async Task ValidateSelectedAsync()
         {
             if (_gridValidations.CurrentRow?.DataBoundItem is not ReservationDto reservation)
             {
-                MessageBox.Show("Sélectionnez une réservation à valider.", "Information", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this,
+                    "Sélectionnez une réservation à valider.",
+                    "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            var result = MessageBox.Show($"Valider la réservation de {reservation.ClientNom} {reservation.ClientPrenom} ?\n\n" +
-                $"Terrain: {reservation.TerrainNom}\n" +
-                $"Date: {reservation.DateCreneau:dd/MM/yyyy}\n" +
-                $"Horaire: {reservation.HeureDebut:hh\\:mm} - {reservation.HeureFin:hh\\:mm}\n" +
-                $"Montant: {reservation.MontantTotal} DH", 
-                "Confirmation de validation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            
-            if (result == DialogResult.Yes)
+            var confirm = MessageBox.Show(this,
+                $"Valider la réservation de {reservation.ClientNom} {reservation.ClientPrenom} ?\n\n" +
+                $"Terrain : {reservation.TerrainNom}\n" +
+                $"Date    : {reservation.DateCreneau:dd/MM/yyyy}\n" +
+                $"Horaire : {reservation.HeureDebut:hh\\:mm} – {reservation.HeureFin:hh\\:mm}\n" +
+                $"Montant : {reservation.MontantTotal} DH",
+                "Confirmer la validation",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (confirm != DialogResult.Yes) return;
+
+            SetValidateState(loading: true);
+            try
             {
-                _btnValidate.Enabled = false;
-                _btnValidate.Text = "Validation...";
-                
-                try
+                var ok = await _apiClient.PutAsync($"api/reservations/{reservation.Id}/validate");
+                if (ok)
                 {
-                    var ok = await _apiClient.PutAsync($"api/reservations/{reservation.Id}/validate");
-                    if (ok)
-                    {
-                        MessageBox.Show($"Réservation N°{reservation.Id} validée avec succès.", "Succès", 
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        await LoadValidationsAsync();
-                        await LoadDashboardAsync();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Validation impossible.", "Erreur", 
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    MessageBox.Show(this,
+                        $"Réservation N°{reservation.Id} validée avec succès.",
+                        "Succès", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    await LoadValidationsAsync();
+                    await LoadDashboardAsync();
                 }
-                finally
+                else
                 {
-                    _btnValidate.Enabled = true;
-                    _btnValidate.Text = "Valider";
+                    MessageBox.Show(this,
+                        "Validation impossible.",
+                        "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            finally { SetValidateState(loading: false); }
         }
 
+        // ════════════════════════════════════════════════════════════════
+        // ANNULER
+        // ════════════════════════════════════════════════════════════════
         private async Task CancelSelectedAsync()
         {
             if (_gridValidations.CurrentRow?.DataBoundItem is not ReservationDto reservation)
             {
-                MessageBox.Show("Sélectionnez une réservation à annuler.", "Information", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this,
+                    "Sélectionnez une réservation à annuler.",
+                    "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            var result = MessageBox.Show($"Annuler la réservation de {reservation.ClientNom} {reservation.ClientPrenom} ?\n\n" +
-                $"Terrain: {reservation.TerrainNom}\n" +
-                $"Date: {reservation.DateCreneau:dd/MM/yyyy}\n" +
-                $"Horaire: {reservation.HeureDebut:hh\\:mm} - {reservation.HeureFin:hh\\:mm}\n" +
-                $"Montant: {reservation.MontantTotal} DH", 
-                "Confirmation d'annulation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            
-            if (result == DialogResult.Yes)
+            var confirm = MessageBox.Show(this,
+                $"Annuler la réservation de {reservation.ClientNom} {reservation.ClientPrenom} ?\n\n" +
+                $"Terrain : {reservation.TerrainNom}\n" +
+                $"Date    : {reservation.DateCreneau:dd/MM/yyyy}\n" +
+                $"Horaire : {reservation.HeureDebut:hh\\:mm} – {reservation.HeureFin:hh\\:mm}\n" +
+                $"Montant : {reservation.MontantTotal} DH",
+                "Confirmer l'annulation",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (confirm != DialogResult.Yes) return;
+
+            SetCancelState(loading: true);
+            try
             {
-                _btnCancel.Enabled = false;
-                _btnCancel.Text = "Annulation...";
-                
-                try
+                var ok = await _apiClient.PutAsync($"api/reservations/{reservation.Id}/cancel");
+                if (ok)
                 {
-                    var ok = await _apiClient.PutAsync($"api/reservations/{reservation.Id}/cancel");
-                    if (ok)
-                    {
-                        MessageBox.Show($"Réservation N°{reservation.Id} annulée avec succès.", "Succès", 
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        await LoadValidationsAsync();
-                        await LoadDashboardAsync();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Annulation impossible.", "Erreur", 
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    MessageBox.Show(this,
+                        $"Réservation N°{reservation.Id} annulée.",
+                        "Succès", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    await LoadValidationsAsync();
+                    await LoadDashboardAsync();
                 }
-                finally
+                else
                 {
-                    _btnCancel.Enabled = true;
-                    _btnCancel.Text = "Annuler";
+                    MessageBox.Show(this,
+                        "Annulation impossible.",
+                        "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            finally { SetCancelState(loading: false); }
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // HELPERS
+        // ════════════════════════════════════════════════════════════════
+        private void SetValidateState(bool loading)
+        {
+            _btnValidate.Enabled = !loading;
+            _btnValidate.Text = loading ? "Validation..." : "✔ Valider";
+        }
+
+        private void SetCancelState(bool loading)
+        {
+            _btnCancel.Enabled = !loading;
+            _btnCancel.Text = loading ? "Annulation..." : "✖ Annuler";
         }
     }
 }

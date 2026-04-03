@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Text.Json;
 using System.Windows.Forms;
 using SportReservationSystem.ClientApp.Forms;
@@ -6,43 +7,67 @@ using SportReservationSystem.Shared.DTOs;
 
 namespace SportReservationSystem.ClientApp
 {
-    public partial class FormLogin : Form
+    public partial class FormLogin : MetroFramework.Forms.MetroForm
     {
-        private readonly ApiClient _apiClient = new("http://localhost:5161");
+        private readonly ApiClient _apiClient = new("https://localhost:7161");
+
+        // Couleurs absentes du Designer (utilisées uniquement ici)
+        private static readonly Color GoldDim = Color.FromArgb(140, 105, 15);
+        private static readonly Color TextDark = Color.FromArgb(12, 12, 12);
 
         public FormLogin()
         {
             InitializeComponent();
+
             btnLogin.Click += BtnLogin_Click;
             btnRegister.Click += BtnRegister_Click;
+
+            txtPassword.KeyDown += (_, e) =>
+            {
+                if (e.KeyCode == Keys.Enter) BtnLogin_Click(null, EventArgs.Empty);
+            };
         }
 
+        // ════════════════════════════════════════════════════════════════
+        // CONNEXION
+        // ════════════════════════════════════════════════════════════════
         private async void BtnLogin_Click(object? sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txtEmail.Text) ||
+                string.IsNullOrWhiteSpace(txtPassword.Text))
+            {
+                MessageBox.Show(this,
+                    "Veuillez renseigner votre e-mail et votre mot de passe.",
+                    "Champs requis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            SetLoginState(loading: true);
+
             try
             {
-                btnLogin.Enabled = false;
-                btnLogin.Text = "Connexion...";
-
                 var result = await _apiClient.PostAsync<JsonElement>("api/auth/login", new LoginDto
                 {
-                    Email = txtEmail.Text,
-                    Password = txtPassword.Text
+                    Email = txtEmail.Text.Trim(),
+                    Password = txtPassword.Text,
                 });
 
                 if (result.ValueKind != JsonValueKind.Object)
                 {
-                    MessageBox.Show("Réponse login invalide.", "Erreur", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(this,
+                        "Réponse du serveur invalide.",
+                        "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
                 var user = result.GetProperty("user");
                 var role = user.GetProperty("role").GetString() ?? string.Empty;
-                
+
                 if (!string.Equals(role, "Client", StringComparison.OrdinalIgnoreCase))
                 {
-                    MessageBox.Show("Ce compte n'est pas un client. Veuillez utiliser l'application gestionnaire.", 
+                    MessageBox.Show(this,
+                        "Ce compte n'est pas un compte client.\n" +
+                        "Veuillez utiliser l'application gestionnaire.",
                         "Accès refusé", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -51,7 +76,7 @@ namespace SportReservationSystem.ClientApp
                 var clientId = user.GetProperty("id").GetInt32();
 
                 _apiClient.SetToken(token);
-                
+
                 Hide();
                 var main = new FormMainClient(_apiClient, clientId);
                 main.FormClosed += (_, _) => Close();
@@ -59,20 +84,34 @@ namespace SportReservationSystem.ClientApp
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Échec de connexion: {ex.Message}", "Erreur", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this,
+                    $"Échec de connexion :\n{ex.Message}",
+                    "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
-                btnLogin.Enabled = true;
-                btnLogin.Text = "Se connecter";
+                SetLoginState(loading: false);
             }
         }
 
+        // ════════════════════════════════════════════════════════════════
+        // INSCRIPTION
+        // ════════════════════════════════════════════════════════════════
         private void BtnRegister_Click(object? sender, EventArgs e)
         {
-            var registerForm = new FormRegister(_apiClient);
-            registerForm.ShowDialog();
+            new FormRegister(_apiClient).ShowDialog();
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // HELPERS
+        // ════════════════════════════════════════════════════════════════
+        private void SetLoginState(bool loading)
+        {
+            btnLogin.Enabled = !loading;
+            btnLogin.Text = loading ? "Connexion en cours..." : "Se connecter";
+            btnLogin.BackColor = loading ? GoldDim : Gold;   // Gold vient du Designer
+            btnLogin.ForeColor = TextDark;
+            btnRegister.Enabled = !loading;
         }
     }
 }

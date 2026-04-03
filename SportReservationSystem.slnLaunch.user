@@ -8,7 +8,7 @@
         "DebugTarget": "https"
       },
       {
-        "Path": "SportReservationSystem.ClientApp\\SportReservationSystem.ClientApp.csproj",
+        "Path": "SportReservationSystem.GestionnaireApp\\SportReservationSystem.GestionnaireApp.csproj",
         "Action": "Start"
       }
     ]

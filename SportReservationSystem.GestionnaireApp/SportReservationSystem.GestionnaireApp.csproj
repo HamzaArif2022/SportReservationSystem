@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\SportReservationSystem.Shared\SportReservationSystem.Shared.csproj" />
+    <PackageReference Include="MetroFrameworkCore" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MetroModernUI" Version="1.4.0" />
+    <ProjectReference Include="..\SportReservationSystem.Shared\SportReservationSystem.Shared.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

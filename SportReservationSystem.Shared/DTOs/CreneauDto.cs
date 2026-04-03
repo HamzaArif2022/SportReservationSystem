@@ -11,7 +11,14 @@ namespace SportReservationSystem.Shared.DTOs
         public TimeSpan HeureDebut { get; set; }
         public TimeSpan HeureFin { get; set; }
         public bool EstDisponible { get; set; }
-        public string DisplayText => $"{Date:dd/MM/yyyy} - {HeureDebut:hh\\:mm} à {HeureFin:hh\\:mm}";
+
+        // infos terrain
+        public int Capacite { get; set; }
+        public decimal TarifHoraire { get; set; }
+        public string TypeSport { get; set; } = string.Empty;
+
+        
+        public string DateHeure => $"{Date:dd/MM/yyyy} - {HeureDebut:hh\\:mm} à {HeureFin:hh\\:mm}";
     }
 
     public class CreneauxDisponiblesRequestDto
